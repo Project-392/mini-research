@@ -1,5 +1,9 @@
 # HelloWorldReactNative
 
+## Demo
+
+https://github.com/Project-392/mini-research/assets/74576449/8a16dcaf-a747-4e07-b5c9-94932bd0f063
+
 This project is a React Native app powered by Expo, designed to showcase a basic "Hello World" functionality.
 
 ## Prerequisites
