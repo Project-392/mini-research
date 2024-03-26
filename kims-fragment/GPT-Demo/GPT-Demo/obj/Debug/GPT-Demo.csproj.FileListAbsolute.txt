@@ -1,0 +1,9 @@
+C:\Users\gwcko\OneDrive\Desktop\CS392\mini-research\kims-fragment\GPT-Demo\GPT-Demo\bin\Debug\GPT-Demo.exe.config
+C:\Users\gwcko\OneDrive\Desktop\CS392\mini-research\kims-fragment\GPT-Demo\GPT-Demo\bin\Debug\GPT-Demo.exe
+C:\Users\gwcko\OneDrive\Desktop\CS392\mini-research\kims-fragment\GPT-Demo\GPT-Demo\bin\Debug\GPT-Demo.pdb
+C:\Users\gwcko\OneDrive\Desktop\CS392\mini-research\kims-fragment\GPT-Demo\GPT-Demo\obj\Debug\GPT-Demo.csproj.AssemblyReference.cache
+C:\Users\gwcko\OneDrive\Desktop\CS392\mini-research\kims-fragment\GPT-Demo\GPT-Demo\obj\Debug\GPT_Demo.Properties.Resources.resources
+C:\Users\gwcko\OneDrive\Desktop\CS392\mini-research\kims-fragment\GPT-Demo\GPT-Demo\obj\Debug\GPT-Demo.csproj.GenerateResource.cache
+C:\Users\gwcko\OneDrive\Desktop\CS392\mini-research\kims-fragment\GPT-Demo\GPT-Demo\obj\Debug\GPT-Demo.csproj.CoreCompileInputs.cache
+C:\Users\gwcko\OneDrive\Desktop\CS392\mini-research\kims-fragment\GPT-Demo\GPT-Demo\obj\Debug\GPT-Demo.exe
+C:\Users\gwcko\OneDrive\Desktop\CS392\mini-research\kims-fragment\GPT-Demo\GPT-Demo\obj\Debug\GPT-Demo.pdb
