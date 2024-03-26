@@ -16,4 +16,4 @@ For next sprint...
 - I will help others if needed 
 
 Here is demo:
-<img src="./20240326_001536.mp4" alt="demo" />
+https://github.com/Project-392/mini-research/blob/main/kims-fragment/GPT-Demo/20240326_001536.mp4 
