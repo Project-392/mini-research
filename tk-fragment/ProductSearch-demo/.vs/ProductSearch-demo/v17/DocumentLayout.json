@@ -1,0 +1,37 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\gwcko\\OneDrive\\Desktop\\CS392\\mini-research\\tk-fragment\\ProductSearch-demo\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{1FDB7CA6-A18F-4CA3-9C3E-1F01B145D5A8}|ProductSearch-demo\\ProductSearch-demo.csproj|c:\\users\\gwcko\\onedrive\\desktop\\cs392\\mini-research\\tk-fragment\\productsearch-demo\\productsearch-demo\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1FDB7CA6-A18F-4CA3-9C3E-1F01B145D5A8}|ProductSearch-demo\\ProductSearch-demo.csproj|solutionrelative:productsearch-demo\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\gwcko\\OneDrive\\Desktop\\CS392\\mini-research\\tk-fragment\\ProductSearch-demo\\ProductSearch-demo\\Program.cs",
+              "RelativeDocumentMoniker": "ProductSearch-demo\\Program.cs",
+              "ToolTip": "C:\\Users\\gwcko\\OneDrive\\Desktop\\CS392\\mini-research\\tk-fragment\\ProductSearch-demo\\ProductSearch-demo\\Program.cs",
+              "RelativeToolTip": "ProductSearch-demo\\Program.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAIwAQAAAASAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-03-24T15:01:13.779Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
