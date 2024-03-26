@@ -1,0 +1,17 @@
+C:\Users\bhero\Desktop\School\CS392-C#\Firebase-CRUD\Firebase-CRUD\bin\Debug\Firebase-CRUD.exe.config
+C:\Users\bhero\Desktop\School\CS392-C#\Firebase-CRUD\Firebase-CRUD\bin\Debug\Firebase-CRUD.exe
+C:\Users\bhero\Desktop\School\CS392-C#\Firebase-CRUD\Firebase-CRUD\bin\Debug\Firebase-CRUD.pdb
+C:\Users\bhero\Desktop\School\CS392-C#\Firebase-CRUD\Firebase-CRUD\bin\Debug\FireSharp.dll
+C:\Users\bhero\Desktop\School\CS392-C#\Firebase-CRUD\Firebase-CRUD\bin\Debug\FireSharp.Serialization.JsonNet.dll
+C:\Users\bhero\Desktop\School\CS392-C#\Firebase-CRUD\Firebase-CRUD\bin\Debug\Newtonsoft.Json.dll
+C:\Users\bhero\Desktop\School\CS392-C#\Firebase-CRUD\Firebase-CRUD\bin\Debug\RestSharp.dll
+C:\Users\bhero\Desktop\School\CS392-C#\Firebase-CRUD\Firebase-CRUD\bin\Debug\Newtonsoft.Json.xml
+C:\Users\bhero\Desktop\School\CS392-C#\Firebase-CRUD\Firebase-CRUD\bin\Debug\RestSharp.xml
+C:\Users\bhero\Desktop\School\CS392-C#\Firebase-CRUD\Firebase-CRUD\obj\Debug\Firebase-CRUD.csproj.AssemblyReference.cache
+C:\Users\bhero\Desktop\School\CS392-C#\Firebase-CRUD\Firebase-CRUD\obj\Debug\Firebase_CRUD.Form1.resources
+C:\Users\bhero\Desktop\School\CS392-C#\Firebase-CRUD\Firebase-CRUD\obj\Debug\Firebase_CRUD.Properties.Resources.resources
+C:\Users\bhero\Desktop\School\CS392-C#\Firebase-CRUD\Firebase-CRUD\obj\Debug\Firebase-CRUD.csproj.GenerateResource.cache
+C:\Users\bhero\Desktop\School\CS392-C#\Firebase-CRUD\Firebase-CRUD\obj\Debug\Firebase-CRUD.csproj.CoreCompileInputs.cache
+C:\Users\bhero\Desktop\School\CS392-C#\Firebase-CRUD\Firebase-CRUD\obj\Debug\Firebase-CRUD.csproj.CopyComplete
+C:\Users\bhero\Desktop\School\CS392-C#\Firebase-CRUD\Firebase-CRUD\obj\Debug\Firebase-CRUD.exe
+C:\Users\bhero\Desktop\School\CS392-C#\Firebase-CRUD\Firebase-CRUD\obj\Debug\Firebase-CRUD.pdb
