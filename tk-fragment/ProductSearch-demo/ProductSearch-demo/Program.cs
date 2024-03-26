@@ -27,7 +27,7 @@ namespace ProductSearch_demo
                 RequestUri = new Uri("https://price-analytics.p.rapidapi.com/search-by-term"),
                 Headers =
             {
-                { "X-RapidAPI-Key", "44964a2e2amsh07a4eab6b5f61bdp12b2bcjsn61d50e3049d1" },
+                { "X-RapidAPI-Key", "APIKEY" },
                 { "X-RapidAPI-Host", "price-analytics.p.rapidapi.com" },
             },
                 Content = new FormUrlEncodedContent(new Dictionary<string, string>
@@ -70,7 +70,7 @@ namespace ProductSearch_demo
                     RequestUri = new Uri($"https://price-analytics.p.rapidapi.com/poll-job/{jobId}"),
                     Headers =
                 {
-                    { "X-RapidAPI-Key", "44964a2e2amsh07a4eab6b5f61bdp12b2bcjsn61d50e3049d1" },
+                    { "X-RapidAPI-Key", "APIKEY" },
                     { "X-RapidAPI-Host", "price-analytics.p.rapidapi.com" },
                 },
                 };
