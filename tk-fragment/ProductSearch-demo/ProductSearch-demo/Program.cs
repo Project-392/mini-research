@@ -12,7 +12,7 @@ namespace ProductSearch_demo
     internal class Program
     {
         private static HttpClient client = new HttpClient();
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             Console.WriteLine("Enter search term:");
             string searchTerm = Console.ReadLine();
