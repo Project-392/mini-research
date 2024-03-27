@@ -23,9 +23,8 @@ Before you can obtain an API key, subscribe to the Price Analytics API:
 
 After subscribing to the API, you can find your API key as follows:
 
-1. On the API page, navigate to the "Endpoints" tab.
+1. On the API page, go to the "Endpoints" tab.
 2. You will see the "X-RapidAPI-Key" in the header section of any endpoint's test console.
-3. This is your API key. Copy and save it securely.
 
 ## Step 5: Run the application
 
