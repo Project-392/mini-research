@@ -14,12 +14,16 @@ namespace ProductSearch_demo
         private static HttpClient client = new HttpClient();
         static async Task Main(string[] args)
         {
+            Console.WriteLine("Enter API Key:");
+            string apiKey = Console.ReadLine();
+
             Console.WriteLine("Enter search term:");
             string searchTerm = Console.ReadLine();
-            await SubmitSearch(searchTerm);
+            await SubmitSearch(searchTerm, apiKey);
         }
 
-        private static async Task SubmitSearch(string searchTerm)
+        // Submit search request. Copied from rapid api documentation
+        private static async Task SubmitSearch(string searchTerm, string apiKey)
         {
             var request = new HttpRequestMessage
             {
@@ -27,7 +31,7 @@ namespace ProductSearch_demo
                 RequestUri = new Uri("https://price-analytics.p.rapidapi.com/search-by-term"),
                 Headers =
             {
-                { "X-RapidAPI-Key", "44964a2e2amsh07a4eab6b5f61bdp12b2bcjsn61d50e3049d1" },
+                { "X-RapidAPI-Key", apiKey },
                 { "X-RapidAPI-Host", "price-analytics.p.rapidapi.com" },
             },
                 Content = new FormUrlEncodedContent(new Dictionary<string, string>
@@ -37,7 +41,8 @@ namespace ProductSearch_demo
                 { "values", searchTerm },
             }),
             };
-
+            
+            // Poll job status. also copied from rapid api documentation
             try
             {
                 using (var response = await client.SendAsync(request))
@@ -48,7 +53,7 @@ namespace ProductSearch_demo
                     if (!string.IsNullOrEmpty(jobId))
                     {
                         Console.WriteLine($"Job submitted successfully. Job ID: {jobId}");
-                        await PollJob(jobId);
+                        await PollJob(jobId, apiKey);
                     }
                 }
             }
@@ -58,7 +63,8 @@ namespace ProductSearch_demo
             }
         }
 
-        private static async Task PollJob(string jobId)
+        // 
+        private static async Task PollJob(string jobId, string apiKey)
         {
             bool isJobFinished = false;
             Console.WriteLine("Polling job status...");
@@ -70,7 +76,7 @@ namespace ProductSearch_demo
                     RequestUri = new Uri($"https://price-analytics.p.rapidapi.com/poll-job/{jobId}"),
                     Headers =
                 {
-                    { "X-RapidAPI-Key", "44964a2e2amsh07a4eab6b5f61bdp12b2bcjsn61d50e3049d1" },
+                    { "X-RapidAPI-Key", apiKey },
                     { "X-RapidAPI-Host", "price-analytics.p.rapidapi.com" },
                 },
                 };
@@ -81,7 +87,7 @@ namespace ProductSearch_demo
                     {
                         response.EnsureSuccessStatusCode();
                         var body = await response.Content.ReadAsStringAsync();
-                        var status = getStatus(body);
+                        var status = getStatus(body); // Get job status from response
 
                         if (status == "finished")
                         {
@@ -92,14 +98,14 @@ namespace ProductSearch_demo
                         else
                         {
                             Console.WriteLine("Job still processing. Waiting before polling again...");
-                            await Task.Delay(5000); // Delay for 5 seconds
+                            await Task.Delay(10000); // Delay for 10 seconds. Every poll counts as one api call.
                         }
                     }
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Error polling job status: {ex.Message}");
-                    return; // Exit on error
+                    return; 
                 }
             }
         }
@@ -116,6 +122,7 @@ namespace ProductSearch_demo
             return json["status"]?.ToString();
         }
 
+        // Display top 10 offers based on rating and review count
         private static void DisplayTopOffers(string jobResults)
         {
             var jsonResponse = JObject.Parse(jobResults);
