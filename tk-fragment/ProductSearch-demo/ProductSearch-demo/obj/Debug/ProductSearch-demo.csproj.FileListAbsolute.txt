@@ -1,0 +1,10 @@
+C:\Users\gwcko\OneDrive\Desktop\CS392\mini-research\tk-fragment\ProductSearch-demo\ProductSearch-demo\obj\Debug\ProductSearch-demo.csproj.AssemblyReference.cache
+C:\Users\gwcko\OneDrive\Desktop\CS392\mini-research\tk-fragment\ProductSearch-demo\ProductSearch-demo\obj\Debug\ProductSearch-demo.csproj.CoreCompileInputs.cache
+C:\Users\gwcko\OneDrive\Desktop\CS392\mini-research\tk-fragment\ProductSearch-demo\ProductSearch-demo\bin\Debug\ProductSearch-demo.exe.config
+C:\Users\gwcko\OneDrive\Desktop\CS392\mini-research\tk-fragment\ProductSearch-demo\ProductSearch-demo\bin\Debug\ProductSearch-demo.exe
+C:\Users\gwcko\OneDrive\Desktop\CS392\mini-research\tk-fragment\ProductSearch-demo\ProductSearch-demo\bin\Debug\ProductSearch-demo.pdb
+C:\Users\gwcko\OneDrive\Desktop\CS392\mini-research\tk-fragment\ProductSearch-demo\ProductSearch-demo\bin\Debug\Newtonsoft.Json.dll
+C:\Users\gwcko\OneDrive\Desktop\CS392\mini-research\tk-fragment\ProductSearch-demo\ProductSearch-demo\bin\Debug\Newtonsoft.Json.xml
+C:\Users\gwcko\OneDrive\Desktop\CS392\mini-research\tk-fragment\ProductSearch-demo\ProductSearch-demo\obj\Debug\ProductSearch-demo.exe
+C:\Users\gwcko\OneDrive\Desktop\CS392\mini-research\tk-fragment\ProductSearch-demo\ProductSearch-demo\obj\Debug\ProductSearch-demo.pdb
+C:\Users\gwcko\OneDrive\Desktop\CS392\mini-research\tk-fragment\ProductSearch-demo\ProductSearch-demo\obj\Debug\ProductS.6131EF17.Up2Date
