@@ -269,24 +269,5 @@ namespace barcode
             var json = JObject.Parse(body);
             return json["status"]?.ToString();
         }
-
-        private void DisplayTopOffers(string jobResults)
-        {
-            var jsonResponse = JObject.Parse(jobResults);
-            var offers = jsonResponse["results"][0]["content"]["offers"]
-                .Select(offer => new
-                {
-                    ReviewRating = offer["shop_review_rating"],
-                    ReviewCount = offer["shop_review_count"],
-                    Price = offer["price"],
-                    Link = offer["link"]["href"],
-                    Name = offer["name"]
-                })
-                .OrderByDescending(offer => offer.ReviewRating)
-                .ThenByDescending(offer => offer.ReviewCount)
-                .Take(3);
-
-
-        }
     }
 }
