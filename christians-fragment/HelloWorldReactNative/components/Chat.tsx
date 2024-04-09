@@ -10,8 +10,10 @@ import {
   Text,
   ListRenderItemInfo,
   TouchableOpacity,
+  Animated,
 } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
+import axios from "axios";
 
 type Message = {
   id: number;
@@ -19,20 +21,57 @@ type Message = {
   sender: "user" | "other";
 };
 
-const dummyResponses: string[] = [
-  "Hello there!",
-  "How are you?",
-  "That's interesting, tell me more.",
-  "I'm not sure about that.",
-  "Goodbye!",
-];
+// const dummyResponses: string[] = [
+//   "Hello there!",
+//   "How are you?",
+//   "That's interesting, tell me more.",
+//   "I'm not sure about that.",
+//   "Goodbye!",
+// ];
+
+const fetchMessage = async (text) => {
+  try {
+    const response = await axios.post("https://localhost:7277/HelloWorld", {
+      text: text, // This is the text you want to send to the backend
+    });
+    return response.data;
+  } catch (error) {
+    console.error(error);
+  }
+};
 
 const Chat: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState<string>("");
   const flatListRef = useRef<FlatList<Message>>(null);
 
-  const sendMessage = (): void => {
+  // Define the animated value outside of the useEffect
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  // Function to start the pulsing animation
+  const startPulsing = () => {
+    scaleAnim.setValue(1); // Reset the scale to start the animation from beginning
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(scaleAnim, {
+          toValue: 1.5,
+          duration: 500,
+          useNativeDriver: true,
+        }),
+        Animated.timing(scaleAnim, {
+          toValue: 1,
+          duration: 500,
+          useNativeDriver: true,
+        }),
+      ]),
+      {
+        iterations: -1, // Loop indefinitely
+      }
+    ).start();
+  };
+
+  const sendMessage = async (): Promise<void> => {
+    startPulsing();
     const newMessage: Message = {
       id: Date.now(),
       text: inputText,
@@ -43,19 +82,27 @@ const Chat: React.FC = () => {
     // Clear input field
     setInputText("");
 
-    // Dummy reply
-    setTimeout(() => {
-      const replyIndex = Math.floor(Math.random() * dummyResponses.length);
-      const reply: Message = {
-        id: Date.now(),
-        text: dummyResponses[replyIndex],
-        sender: "other",
-      };
-      setMessages((prevMessages) => [...prevMessages, reply]);
+    const replyText = await fetchMessage(inputText);
 
-      // Scroll to the bottom
-      flatListRef.current?.scrollToEnd({ animated: true });
-    }, 500);
+    const reply: Message = {
+      id: Date.now(),
+      text: replyText,
+      sender: "other",
+    };
+
+    // Add reply to messages
+    setMessages((prevMessages) => [...prevMessages, reply]);
+
+    // Scroll to the bottom
+    flatListRef.current?.scrollToEnd({ animated: true });
+    scaleAnim.stopAnimation();
+
+    // Trigger a spring animation upon message receipt
+    Animated.spring(scaleAnim, {
+      toValue: 1, // Animate back to the original scale
+      friction: 3, // Make it a bit bouncy
+      useNativeDriver: true,
+    }).start();
   };
 
   const renderItem = ({ item }: ListRenderItemInfo<Message>) => (
@@ -80,7 +127,14 @@ const Chat: React.FC = () => {
       <View style={styles.header}>
         <View style={{ flexDirection: "row", alignItems: "center" }}>
           <View style={styles.pfp}>
-            <View style={styles.pfpDot} />
+            <Animated.View
+              style={[
+                styles.pfpDot,
+                {
+                  transform: [{ scale: scaleAnim }], // Bind the animated value to the scale transform
+                },
+              ]}
+            />
           </View>
           <Text style={styles.headerName}>Dr. Mittens</Text>
         </View>
@@ -165,11 +219,11 @@ const styles = StyleSheet.create({
     marginTop: 25,
     marginBottom: 20,
   },
-  listContainer: { flex: 3, paddingHorizontal: 10 },
+  listContainer: { flex: 8, paddingHorizontal: 10 },
   sendButton: {
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 10,
+    height: 50,
   },
   sendContainer: {
     flexDirection: "row",
@@ -180,6 +234,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#272727",
+    width: "100%",
   },
   inputContainer: {
     flexDirection: "row",

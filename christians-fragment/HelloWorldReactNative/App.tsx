@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { StyleSheet, Text, View, Button, SafeAreaView } from "react-native";
 import axios from "axios";
-import MessagesScreen from "./components/MessageScreen";
 import Chat from "./components/Chat";
 
 export default function App() {
@@ -18,6 +17,8 @@ export default function App() {
 
   return (
     <SafeAreaView style={styles.container}>
+      {/* <Text>{message}</Text>
+      <Button title="Fetch Message" onPress={fetchMessage} /> */}
       <Chat />
     </SafeAreaView>
   );
@@ -34,5 +35,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
+    width: "100%",
   },
 });

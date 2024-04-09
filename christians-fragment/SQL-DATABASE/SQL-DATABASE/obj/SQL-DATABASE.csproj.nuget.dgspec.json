@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\tuber\\source\\repos\\mini-research\\christians-fragment\\SQL-DATABASE\\SQL-DATABASE\\SQL-DATABASE.csproj": {}
+    "C:\\Users\\tuber\\Documents\\projects\\mini-research\\christians-fragment\\SQL-DATABASE\\SQL-DATABASE\\SQL-DATABASE.csproj": {}
   },
   "projects": {
-    "C:\\Users\\tuber\\source\\repos\\mini-research\\christians-fragment\\SQL-DATABASE\\SQL-DATABASE\\SQL-DATABASE.csproj": {
+    "C:\\Users\\tuber\\Documents\\projects\\mini-research\\christians-fragment\\SQL-DATABASE\\SQL-DATABASE\\SQL-DATABASE.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\tuber\\source\\repos\\mini-research\\christians-fragment\\SQL-DATABASE\\SQL-DATABASE\\SQL-DATABASE.csproj",
+        "projectUniqueName": "C:\\Users\\tuber\\Documents\\projects\\mini-research\\christians-fragment\\SQL-DATABASE\\SQL-DATABASE\\SQL-DATABASE.csproj",
         "projectName": "SQL-DATABASE",
-        "projectPath": "C:\\Users\\tuber\\source\\repos\\mini-research\\christians-fragment\\SQL-DATABASE\\SQL-DATABASE\\SQL-DATABASE.csproj",
+        "projectPath": "C:\\Users\\tuber\\Documents\\projects\\mini-research\\christians-fragment\\SQL-DATABASE\\SQL-DATABASE\\SQL-DATABASE.csproj",
         "packagesPath": "C:\\Users\\tuber\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\tuber\\source\\repos\\mini-research\\christians-fragment\\SQL-DATABASE\\SQL-DATABASE\\obj\\",
+        "outputPath": "C:\\Users\\tuber\\Documents\\projects\\mini-research\\christians-fragment\\SQL-DATABASE\\SQL-DATABASE\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\tuber\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -40,6 +40,10 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
+            "OpenAI": {
+              "target": "Package",
+              "version": "[1.11.0, )"
+            },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
               "version": "[6.4.0, )"
