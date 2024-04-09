@@ -1,6 +1,8 @@
 import React, { useState } from "react";
-import { StyleSheet, Text, View, Button } from "react-native";
+import { StyleSheet, Text, View, Button, SafeAreaView } from "react-native";
 import axios from "axios";
+import MessagesScreen from "./components/MessageScreen";
+import Chat from "./components/Chat";
 
 export default function App() {
   const [message, setMessage] = useState("");
@@ -15,12 +17,16 @@ export default function App() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text>{message}</Text>
-      <Button title="Fetch Message" onPress={fetchMessage} />
-    </View>
+    <SafeAreaView style={styles.container}>
+      <Chat />
+    </SafeAreaView>
   );
 }
+
+/**
+ * <Text>{message}</Text>
+ * <Button title="Fetch Message" onPress={fetchMessage}
+ */
 
 const styles = StyleSheet.create({
   container: {
