@@ -1,40 +1,21 @@
-import React, { useState } from "react";
-import { StyleSheet, Text, View, Button, SafeAreaView } from "react-native";
-import axios from "axios";
-import Chat from "./components/Chat";
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import Chat from './components/Chat';
+import Scan from './components/Scan';
 
-export default function App() {
-  const [message, setMessage] = useState("");
+const Stack = createStackNavigator();
 
-  const fetchMessage = async () => {
-    try {
-      const response = await axios.get("https://localhost:7277/HelloWorld");
-      setMessage(response.data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  return (
-    <SafeAreaView style={styles.container}>
-      {/* <Text>{message}</Text>
-      <Button title="Fetch Message" onPress={fetchMessage} /> */}
-      <Chat />
-    </SafeAreaView>
-  );
+function App() {
+    return (
+         // comment out the chat line for scan component to show. working on routing.
+        <NavigationContainer>
+            <Stack.Navigator>
+                <Stack.Screen name="Chat" component={Chat} options={{ title: 'Chat' }} />
+                <Stack.Screen name="Scan" component={Scan} options={{ title: 'Barcode Scanner' }} />
+            </Stack.Navigator>
+        </NavigationContainer>
+    );
 }
 
-/**
- * <Text>{message}</Text>
- * <Button title="Fetch Message" onPress={fetchMessage}
- */
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-    width: "100%",
-  },
-});
+export default App;
