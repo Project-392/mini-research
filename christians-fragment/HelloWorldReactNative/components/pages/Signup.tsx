@@ -1,6 +1,14 @@
 // Signup.tsx
 import React, { useState } from "react";
-import { View, Text, TextInput, Button, StyleSheet, Alert } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  Button,
+  StyleSheet,
+  Alert,
+  TouchableOpacity,
+} from "react-native";
 
 type Props = {};
 
@@ -47,25 +55,45 @@ const Signup: React.FC<Props> = ({ navigation }: any) => {
         onChangeText={setPassword}
         secureTextEntry={true}
       />
-      <Button title="Sign Up" onPress={handleSignup} />
-      <Button
-        title="Already have an account?"
-        onPress={() => navigation.navigate("Login")}
-      />
+      <TouchableOpacity style={styles.buttonPress} onPress={handleSignup}>
+        <Text style={styles.buttonText}>Signup</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+        <Text style={{ color: "white", marginTop: 12 }}>
+          Already have an account?
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  buttonText: { fontSize: 24, color: "black", fontWeight: "500" },
+  buttonPress: {
+    marginTop: 16,
+    borderWidth: 1,
+    borderRadius: 10,
+    borderColor: "white",
+    color: "white",
+    paddingHorizontal: 10,
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 12,
+    backgroundColor: "white",
+  },
   container: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
     padding: 20,
+    backgroundColor: "black",
   },
   title: {
     fontSize: 24,
     marginBottom: 20,
+    color: "white",
+    fontWeight: "bold",
   },
   input: {
     width: "100%",
@@ -74,6 +102,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 5,
+    color: "white",
   },
   switchText: {
     marginVertical: 20,

@@ -17,9 +17,7 @@ const Main: React.FC = ({ navigation }: any) => {
         <Text style={styles.headerTitle}>Chat</Text>
         <TouchableOpacity
           style={styles.iconButton}
-          onPress={() => {
-            /* Placeholder for settings modal */
-          }}
+          onPress={() => navigation.navigate("Settings")}
         >
           <AntDesign name="setting" size={30} color="white" />
         </TouchableOpacity>

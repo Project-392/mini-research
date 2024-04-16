@@ -9,6 +9,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Main from "./pages/Main";
 import Profile from "./pages/Profile";
+import Settings from "./pages/Settings";
 
 const { Navigator, Screen } = createStackNavigator();
 
@@ -25,13 +26,14 @@ const AppStack = () => {
         screenOptions={{
           cardStyle: { flex: 1, backgroundColor: "transparent" },
         }}
-        initialRouteName="Welcome"
+        initialRouteName="Login"
       >
         <Screen name="Welcome" component={Welcome} options={options} />
         <Screen name="Signup" component={Signup} options={options} />
         <Screen name="Login" component={Login} options={options} />
         <Screen name="Main" component={Main} options={options} />
         <Screen name="Profile" component={Profile} options={options} />
+        <Screen name="Settings" component={Settings} options={options} />
         {/* Add other screens here */}
       </Navigator>
     </SafeAreaView>
