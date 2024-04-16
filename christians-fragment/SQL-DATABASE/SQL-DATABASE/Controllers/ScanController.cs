@@ -62,13 +62,22 @@ namespace SQL_DATABASE.Controllers
             return NotFound("Product name not found in product info.");
         }
 
+        // Retrieves product information from an external API using a given barcode. It constructs a URL using the barcode, makes an HTTP GET request, and returns the response as a string if successful. 
+        //It throws an exception if the request fails.
         private static async Task<string> GetProductInfo(string barcode)
         {
             string url = baseUrl + barcode;
+            // initiates an asynchronous GET request to the URL specified by the 'url' variable.
+            // 'using' ensures that 'HttpResponseMessage' is disposed of correctly once its not needed
+            // Why we use async here: 
+            //     Asynchronous methods do not block the thread on which they are executed while waiting for the operation (like a network call) to complete. 
+            //     Instead, the thread is freed up to perform other work. 
             using (var response = await client.GetAsync(url))
             {
+                // 'IsSuccessStatudCode' checks the status code of the HTTP response to see if its successful.
                 if (response.IsSuccessStatusCode)
                 {
+                    // If the HTTP response was successful, this line reads the content of the response as a string asynchronously
                     return await response.Content.ReadAsStringAsync();
                 }
                 else
@@ -78,6 +87,8 @@ namespace SQL_DATABASE.Controllers
             }
         }
 
+        // Continuously polls the status of a search job using a provided job ID and API key until the job is finished. 
+        // It checks the job status every 15 seconds and returns the final job results once complete.
         private static async Task<List<Offer>> AmazonSearchResult(string searchTerm, string APIKEY)
         {
             List<Offer> offersList = new List<Offer>();
@@ -102,6 +113,7 @@ namespace SQL_DATABASE.Controllers
             {
                 using (var response = await client.SendAsync(request))
                 {
+                    // throws an exception if the HTTP response status code does not indicate success
                     response.EnsureSuccessStatusCode();
                     var body = await response.Content.ReadAsStringAsync();
                     var jobId = getJobId(body);
@@ -109,7 +121,7 @@ namespace SQL_DATABASE.Controllers
                     {
                         var jobResults = await PollJob(jobId, APIKEY);
                         var jsonResponse = JObject.Parse(jobResults);
-                        Console.WriteLine("API Response: " + jsonResponse.ToString());
+                        // Console.WriteLine("API Response: " + jsonResponse.ToString());
                         var offers = jsonResponse["results"][0]["content"]["offers"]
                         .Select(offer => new Offer
                         {
@@ -135,6 +147,9 @@ namespace SQL_DATABASE.Controllers
 
             return offersList;
         }
+
+        // Continuously polls the status of a search job using a provided job ID and API key until the job is finished. 
+        // It checks the job status every 15 seconds and returns the final job results once complete.
         private static async Task<string> PollJob(string jobId, string APIKEY)
         {
             bool isJobFinished = false;
@@ -178,7 +193,7 @@ namespace SQL_DATABASE.Controllers
             }
             return jobResults;
         }
-
+        // Extracts and returns the job ID from a response body, which is needed for polling the status of a job.
         private static string getJobId(string body)
         {
             var json = JObject.Parse(body);
