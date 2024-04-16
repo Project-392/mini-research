@@ -26,7 +26,7 @@ const AppStack = () => {
         screenOptions={{
           cardStyle: { flex: 1, backgroundColor: "transparent" },
         }}
-        initialRouteName="Login"
+        initialRouteName="Profile"
       >
         <Screen name="Welcome" component={Welcome} options={options} />
         <Screen name="Signup" component={Signup} options={options} />
