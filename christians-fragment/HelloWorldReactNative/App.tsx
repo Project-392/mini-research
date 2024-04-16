@@ -11,7 +11,6 @@ function App() {
          // comment out the chat line for scan component to show. working on routing.
         <NavigationContainer>
             <Stack.Navigator>
-                <Stack.Screen name="Chat" component={Chat} options={{ title: 'Chat' }} />
                 <Stack.Screen name="Scan" component={Scan} options={{ title: 'Barcode Scanner' }} />
             </Stack.Navigator>
         </NavigationContainer>

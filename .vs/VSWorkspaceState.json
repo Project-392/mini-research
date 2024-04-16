@@ -2,9 +2,14 @@
   "ExpandedNodes": [
     "",
     "\\christians-fragment",
+    "\\christians-fragment\\HelloWorldReactNative",
     "\\christians-fragment\\SQL-DATABASE",
-    "\\christians-fragment\\SQL-DATABASE\\SQL-DATABASE"
+    "\\christians-fragment\\SQL-DATABASE\\SQL-DATABASE",
+    "\\christians-fragment\\SQL-DATABASE\\SQL-DATABASE\\Controllers",
+    "\\hams-fragment",
+    "\\hams-fragment\\barcode",
+    "\\hams-fragment\\barcode\\barcode"
   ],
-  "SelectedNode": "\\christians-fragment\\SQL-DATABASE\\SQL-DATABASE\\Program.cs",
+  "SelectedNode": "\\christians-fragment\\SQL-DATABASE\\SQL-DATABASE.sln",
   "PreviewInSolutionExplorer": false
 }

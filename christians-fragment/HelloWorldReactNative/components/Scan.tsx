@@ -1,66 +1,83 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, Button, TextInput, ScrollView, ActivityIndicator, Linking } from 'react-native';
+import { StyleSheet, Text, View, Button, TextInput, ScrollView, ActivityIndicator, Linking, Image, Platform } from 'react-native';
 import axios from 'axios';
 
 // Define an interface for the offer to ensure type safety
 interface Offer {
-    name: string;
+    title: string;
     price: string;
     reviewRating?: string;
     reviewCount?: string;
     link: string;
 }
 
-// Define the props interface if needed, for now, it's empty as no props are passed
 interface ScanProps { }
 
 
 const Scan: React.FC<ScanProps> = () => {
-    const [barcode, setBarcode] = useState<string>('');
+    const [file, setFile] = useState<File | null>(null);
     const [results, setResults] = useState<Offer[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
+    const [imageUri, setImageUri] = useState<string | null>(null);
 
-    const fetchAmazonOffers = async () => {
-        if (!barcode) {
-            console.error("Barcode is empty.");
-            setLoading(false);
+    const pickImage = () => {
+    if (Platform.OS === 'web') {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.onchange = (event) => {
+            // Cast the event target to HTMLInputElement to access the files property
+            const target = event.target as HTMLInputElement;
+            if (target.files && target.files.length > 0) {
+                const file = target.files[0];
+                setFile(file);  // Store the file object directly
+                // Optionally, set an image URI for displaying the selected image
+                setImageUri(URL.createObjectURL(file));
+            }
+        };
+        input.click();
+    }
+};
+
+
+    const uploadImage = async () => {
+        if (!file) {
+            console.error("No image selected.");
             return;
         }
         setLoading(true);
+        const formData = new FormData();
+        formData.append('file', file);  
         try {
-            const response = await axios.post('https://localhost:7277/Scan', { barcode : barcode }, {
+            const response = await axios.post('https://localhost:7277/Scan', formData, {
                 headers: {
-                    'Content-Type': 'application/json'  // Ensure this is set to application/json
+                    'Content-Type': 'multipart/form-data'
                 }
             });
             setResults(response.data);
         } catch (error) {
             console.error(error);
-            setResults([]); // Reset results on error
+            setResults([]);
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     };
 
     return (
         <ScrollView style={styles.container}>
-            <TextInput
-                style={styles.input}
-                onChangeText={setBarcode}
-                value={barcode}
-                placeholder="Enter product barcode"
-                keyboardType="numeric"
-            />
-            <Button title="Fetch Amazon Offers" onPress={fetchAmazonOffers} disabled={loading} />
+            <Button title="Select Image" onPress={pickImage} />
+            {imageUri && <Image source={{ uri: imageUri }} style={styles.image} />}
+            <Button title="Upload and Fetch Offers" onPress={uploadImage} disabled={loading} />
             {loading ? (
                 <ActivityIndicator size="large" color="#0000ff" />
             ) : results.length > 0 ? (
                 results.map((item, index) => (
                     <View key={index} style={styles.resultItem}>
-                        <Text>Name: {item.name}</Text>
+                        <Text>Name: {item.title}</Text>
                         <Text>Price: {item.price}</Text>
                         <Text>Rating: {item.reviewRating || "Not available"}</Text>
                         <Text>Reviews: {item.reviewCount || "Not available"}</Text>
-                        <Text style={styles.linkText} onPress={() => Linking.openURL(item.link)}>Amazon</Text>
+                        <Text style={styles.linkText} onPress={() => Linking.openURL(item.link)}>View on Amazon</Text>
                     </View>
                 ))
             ) : (
@@ -96,7 +113,14 @@ const styles = StyleSheet.create({
     linkText: {
         color: 'blue',
         textDecorationLine: 'underline'
-    }
+    },
+    image: {
+        width: 200,
+        height: 200,
+        resizeMode: 'contain',
+        alignSelf: 'center',
+        marginBottom: 20,
+    },
 });
 
 export default Scan;

@@ -29,7 +29,7 @@ type Message = {
 //   "Goodbye!",
 // ];
 
-const fetchMessage = async (text) => {
+const fetchMessage = async (text: String) => {
   try {
     const response = await axios.post("https://localhost:7277/HelloWorld", {
       text: text, // This is the text you want to send to the backend

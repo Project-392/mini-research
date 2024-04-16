@@ -3,6 +3,9 @@
   "WorkspaceRootPath": "C:\\Users\\gwcko\\OneDrive\\Desktop\\CS392\\mini-research\\tk-fragment\\ProductSearch-demo\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\gwcko\\OneDrive\\Desktop\\CS392\\mini-research\\christians-fragment\\SQL-DATABASE\\SQL-DATABASE\\Controllers\\ScanController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{1FDB7CA6-A18F-4CA3-9C3E-1F01B145D5A8}|ProductSearch-demo\\ProductSearch-demo.csproj|c:\\users\\gwcko\\onedrive\\desktop\\cs392\\mini-research\\tk-fragment\\productsearch-demo\\productsearch-demo\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{1FDB7CA6-A18F-4CA3-9C3E-1F01B145D5A8}|ProductSearch-demo\\ProductSearch-demo.csproj|solutionrelative:productsearch-demo\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
@@ -19,12 +22,43 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "ScanController.cs",
+              "DocumentMoniker": "C:\\Users\\gwcko\\OneDrive\\Desktop\\CS392\\mini-research\\christians-fragment\\SQL-DATABASE\\SQL-DATABASE\\Controllers\\ScanController.cs",
+              "RelativeDocumentMoniker": "..\\..\\christians-fragment\\SQL-DATABASE\\SQL-DATABASE\\Controllers\\ScanController.cs",
+              "ToolTip": "C:\\Users\\gwcko\\OneDrive\\Desktop\\CS392\\mini-research\\christians-fragment\\SQL-DATABASE\\SQL-DATABASE\\Controllers\\ScanController.cs",
+              "RelativeToolTip": "..\\..\\christians-fragment\\SQL-DATABASE\\SQL-DATABASE\\Controllers\\ScanController.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABgAAAAsAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-04-16T10:06:31.565Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{d78612c7-9962-4b83-95d9-268046dad23a}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:1:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
+            }
+          ]
+        },
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Users\\gwcko\\OneDrive\\Desktop\\CS392\\mini-research\\tk-fragment\\ProductSearch-demo\\ProductSearch-demo\\Program.cs",
               "RelativeDocumentMoniker": "ProductSearch-demo\\Program.cs",
               "ToolTip": "C:\\Users\\gwcko\\OneDrive\\Desktop\\CS392\\mini-research\\tk-fragment\\ProductSearch-demo\\ProductSearch-demo\\Program.cs",
               "RelativeToolTip": "ProductSearch-demo\\Program.cs",
-              "ViewState": "AQIAACEAAAAAAAAAAAAYwD4AAAAAAAAA",
+              "ViewState": "AQIAAAwAAAAAAAAAAAA6wEcAAAAzAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-03-24T15:01:13.779Z",
               "EditorCaption": ""

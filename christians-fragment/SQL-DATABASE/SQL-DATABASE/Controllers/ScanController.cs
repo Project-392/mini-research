@@ -2,8 +2,11 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
-using System.Collections.Generic;
-using System.Linq;
+using ZXing;
+using ZXing.Common;
+using System.Drawing;
+using System.IO;
+using ZXing.Windows.Compatibility;
 
 namespace SQL_DATABASE.Controllers
 {
@@ -11,7 +14,7 @@ namespace SQL_DATABASE.Controllers
     [Route("[controller]")]
     public class ScanController : ControllerBase
     {
-        private static readonly HttpClient client = new HttpClient();
+        private static HttpClient client = new HttpClient();
         private const string baseUrl = "https://world.openpetfoodfacts.org/api/v2/product/";
 
         public class Offer
@@ -20,20 +23,80 @@ namespace SQL_DATABASE.Controllers
             public string ReviewCount { get; set; }
             public string Price { get; set; }
             public string Link { get; set; }
-            public string Name { get; set; }
+            public string Title { get; set; }
         }
 
-        public class BarcodeRequest
-        {
-            public string Barcode { get; set; }
-        }
-
-        static ScanController()
-        {
-            client.DefaultRequestHeaders.Add("User-Agent", "PetFoodScannerTest/1.0 (jsham1031@gmail.com)");
-        }
 
         [HttpPost]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> UploadBarcode([FromForm] IFormFile file)
+        {
+
+
+            // Console.WriteLine("File uploaded");
+
+            if (file == null || file.Length == 0)
+                return BadRequest("No file uploaded.");
+
+
+            // Decode barcode
+            string barcode = null;
+            try
+            {
+                using (var stream = file.OpenReadStream())
+                using (var bitmap = new Bitmap(stream)) // Create Bitmap directly from the stream
+                {
+                    var barcodeReader = new BarcodeReader()
+                    {
+                        AutoRotate = true,
+                        Options = new DecodingOptions { TryHarder = true }
+                    };
+                    var result = barcodeReader.Decode(bitmap);
+                    if (result != null)
+                    {
+                        barcode = result.Text;
+                        Console.WriteLine($"Decoded barcode: {barcode}");
+                    }
+                    else
+                    {
+                        return BadRequest("Barcode could not be decoded from the image.");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error decoding barcode: {ex.Message}");
+            }
+
+
+            if (string.IsNullOrEmpty(barcode))
+                return BadRequest("Barcode could not be decoded from the image.");
+
+            // Get product info from openpetfoodfacts API
+            string productInfo = await GetProductInfo(barcode);
+            if (string.IsNullOrEmpty(productInfo))
+                return NotFound("Product information not found.");
+
+            try
+            {
+                var parsedProductInfo = JObject.Parse(productInfo);
+                var name = parsedProductInfo["product"]["product_name"]?.ToString();
+                if (!string.IsNullOrEmpty(name))
+                {
+                    string apiKey = "ef1277f066mshbfc54cfe307dc97p10382ajsncb25e3402900"; // Replace with your actual API key
+                    List<Offer> amazonResults = await AmazonSearchResult(name, apiKey);
+                    return Ok(amazonResults);
+                }
+
+                return NotFound("Product name not found in product info.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"An error occurred: {ex.Message}");
+            }
+        }
+
+        /*[HttpPost]
         public async Task<IActionResult> PostScan([FromBody] BarcodeRequest barcodeRequest)
         {
 
@@ -60,7 +123,7 @@ namespace SQL_DATABASE.Controllers
             }
 
             return NotFound("Product name not found in product info.");
-        }
+        }*/
 
         // Retrieves product information from an external API using a given barcode. It constructs a URL using the barcode, makes an HTTP GET request, and returns the response as a string if successful. 
         //It throws an exception if the request fails.
@@ -74,6 +137,7 @@ namespace SQL_DATABASE.Controllers
             //     Instead, the thread is freed up to perform other work. 
             using (var response = await client.GetAsync(url))
             {
+                client.DefaultRequestHeaders.Add("User-Agent", "PetFoodScannerTest/1.0 (jsham1031@gmail.com)");
                 // 'IsSuccessStatudCode' checks the status code of the HTTP response to see if its successful.
                 if (response.IsSuccessStatusCode)
                 {
@@ -91,22 +155,17 @@ namespace SQL_DATABASE.Controllers
         // It checks the job status every 15 seconds and returns the final job results once complete.
         private static async Task<List<Offer>> AmazonSearchResult(string searchTerm, string APIKEY)
         {
+            // Console.WriteLine("Searching Amazon for: " + searchTerm);
             List<Offer> offersList = new List<Offer>();
             var request = new HttpRequestMessage
             {
-                Method = HttpMethod.Post,
-                RequestUri = new Uri("https://price-analytics.p.rapidapi.com/search-by-term"),
+                Method = HttpMethod.Get,
+                RequestUri = new Uri($"https://real-time-amazon-data.p.rapidapi.com/search?query={searchTerm}&page=1&country=US&category_id=aps"),
                 Headers =
-            {
-                { "X-RapidAPI-Key", APIKEY },
-                { "X-RapidAPI-Host", "price-analytics.p.rapidapi.com" },
-            },
-                Content = new FormUrlEncodedContent(new Dictionary<string, string>
-            {
-                { "source", "amazon" },
-                { "country", "us" },
-                { "values", searchTerm },
-            }),
+                {
+                    { "X-RapidAPI-Key", APIKEY },
+                    { "X-RapidAPI-Host", "real-time-amazon-data.p.rapidapi.com" },
+                },
             };
 
             try
@@ -116,28 +175,25 @@ namespace SQL_DATABASE.Controllers
                     // throws an exception if the HTTP response status code does not indicate success
                     response.EnsureSuccessStatusCode();
                     var body = await response.Content.ReadAsStringAsync();
-                    var jobId = getJobId(body);
-                    if (!string.IsNullOrEmpty(jobId))
-                    {
-                        var jobResults = await PollJob(jobId, APIKEY);
-                        var jsonResponse = JObject.Parse(jobResults);
-                        // Console.WriteLine("API Response: " + jsonResponse.ToString());
-                        var offers = jsonResponse["results"][0]["content"]["offers"]
-                        .Select(offer => new Offer
+                    var jsonResponse = JObject.Parse(body);
+                    var products = jsonResponse["data"]["products"]
+                        .Select(p => new Offer
                         {
-                            ReviewRating = offer["shop_review_rating"]?.ToString(),
-                            ReviewCount = offer["shop_review_count"]?.ToString(),
-                            Price = offer["price"]?.ToString(),
-                            Link = offer["link"]["href"]?.ToString(),
-                            Name = offer["name"]?.ToString()
+                            Title = (string)p["product_title"],
+                            Price = (string)p["product_price"],
+                            ReviewRating = (string)p["product_star_rating"],
+                            ReviewCount = (string)p["product_num_ratings"],
+                            Link = (string)p["product_url"]
                         })
                         .OrderByDescending(offer => offer.ReviewRating)
                         .ThenByDescending(offer => offer.ReviewCount)
                         .Take(3)
                         .ToList();
 
-                        offersList.AddRange(offers);
-                    }
+                        offersList.AddRange(products);
+
+                    //
+                    
                 }
             }
             catch (Exception ex)
@@ -146,64 +202,6 @@ namespace SQL_DATABASE.Controllers
             }
 
             return offersList;
-        }
-
-        // Continuously polls the status of a search job using a provided job ID and API key until the job is finished. 
-        // It checks the job status every 15 seconds and returns the final job results once complete.
-        private static async Task<string> PollJob(string jobId, string APIKEY)
-        {
-            bool isJobFinished = false;
-            string jobResults = "";
-            while (!isJobFinished)
-            {
-                var request = new HttpRequestMessage
-                {
-                    Method = HttpMethod.Get,
-                    RequestUri = new Uri($"https://price-analytics.p.rapidapi.com/poll-job/{jobId}"),
-                    Headers =
-                {
-                    { "X-RapidAPI-Key", APIKEY },
-                    { "X-RapidAPI-Host", "price-analytics.p.rapidapi.com" },
-                },
-                };
-
-                try
-                {
-                    using (var response = await client.SendAsync(request))
-                    {
-                        response.EnsureSuccessStatusCode();
-                        var body = await response.Content.ReadAsStringAsync();
-                        var status = getStatus(body);
-
-                        if (status == "finished")
-                        {
-                            isJobFinished = true;
-                            jobResults = body;
-                        }
-                        else
-                        {
-                            await Task.Delay(15000); // Delay for 15 seconds
-                        }
-                    }
-                }
-                catch (Exception)
-                {
-                    return "Error when polling job"; // Exit on error
-                }
-            }
-            return jobResults;
-        }
-        // Extracts and returns the job ID from a response body, which is needed for polling the status of a job.
-        private static string getJobId(string body)
-        {
-            var json = JObject.Parse(body);
-            return json["job_id"]?.ToString();
-        }
-
-        private static string getStatus(string body)
-        {
-            var json = JObject.Parse(body);
-            return json["status"]?.ToString();
         }
     }
 }
