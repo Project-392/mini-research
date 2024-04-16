@@ -33,8 +33,7 @@ const Scan: React.FC<ScanProps> = () => {
                     'Content-Type': 'application/json'  // Ensure this is set to application/json
                 }
             });
-            setResults(response.data); // Assuming the response data is correctly typed as an array of Offer
-            console.log(response.data);
+            setResults(response.data);
         } catch (error) {
             console.error(error);
             setResults([]); // Reset results on error
