@@ -3,8 +3,9 @@
     "",
     "\\christians-fragment",
     "\\christians-fragment\\SQL-DATABASE",
-    "\\christians-fragment\\SQL-DATABASE\\SQL-DATABASE"
+    "\\christians-fragment\\SQL-DATABASE\\SQL-DATABASE",
+    "\\christians-fragment\\SQL-DATABASE\\SQL-DATABASE\\Controllers"
   ],
-  "SelectedNode": "\\christians-fragment\\SQL-DATABASE\\SQL-DATABASE\\Program.cs",
+  "SelectedNode": "\\christians-fragment\\SQL-DATABASE\\SQL-DATABASE\\Controllers\\HelloWorldController.cs",
   "PreviewInSolutionExplorer": false
 }
