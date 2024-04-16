@@ -1,62 +1,93 @@
 ﻿using System;
 using System.Net.Http;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-
 using ZXing;
 using ZXing.Common;
+using AForge.Video;
+using AForge.Video.DirectShow;
+using Newtonsoft.Json.Linq;
+using System.Drawing;
 using System.IO;
+using System.Threading.Tasks;
+using System.Text;
 
 namespace barcode
 {
     public partial class Form1 : Form
     {
+        private FilterInfoCollection videoDevices;
+        private VideoCaptureDevice videoSource;
+
+        public Form1()
+        {
+            InitializeComponent();
+            GetAvailableCameras();
+            StartCameraCapture();
+        }
+
+        private void GetAvailableCameras()
+        {
+            videoDevices = new FilterInfoCollection(FilterCategory.VideoInputDevice);
+            foreach (FilterInfo device in videoDevices)
+            {
+                comboBoxCameras.Items.Add(device.Name);
+            }
+
+            // Only set the SelectedIndex if at least one camera is found
+            if (comboBoxCameras.Items.Count > 0)
+            {
+                comboBoxCameras.SelectedIndex = 0;
+            }
+            else
+            {
+                // Handle the case when no cameras are found
+                MessageBox.Show("No cameras found.");
+            }
+        }
+
+        private void StartCameraCapture()
+        {
+            if (videoDevices.Count == 0) return;
+            videoSource = new VideoCaptureDevice(videoDevices[comboBoxCameras.SelectedIndex].MonikerString);
+            videoSource.NewFrame += new NewFrameEventHandler(video_NewFrame);
+            videoSource.Start();
+        }
+
+        private void video_NewFrame(object sender, NewFrameEventArgs eventArgs)
+        {
+            Bitmap bitmap = (Bitmap)eventArgs.Frame.Clone();
+            BarcodeReader reader = new BarcodeReader();
+            var result = reader.Decode(bitmap);
+            if (result != null)
+            {
+                this.Invoke((MethodInvoker)delegate
+                {
+                    txtBarcode.Text = result.Text;
+                    btnScan_Click(null, null); // Trigger barcode scanning
+                });
+            }
+            bitmap.Dispose();
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (videoSource != null && videoSource.IsRunning)
+            {
+                videoSource.SignalToStop();
+                videoSource.WaitForStop();
+            }
+        }
 
         private async void btnScan_Click(object sender, EventArgs e)
         {
-            rtxtResults.Text = "Searching..."; // use RichTextBox for displaying results
+            rtxtResults.Text = "Searching...";
             string barcode = txtBarcode.Text;
             string productInfo = await GetProductInfo(barcode);
 
-            // parse the JSON and display the relevant information
             try
             {
-                var parsedProductInfo = Newtonsoft.Json.Linq.JObject.Parse(productInfo);
-                string name = parsedProductInfo["product"]["product_name"]?.ToString();
-                string ingredients = parsedProductInfo["product"]["ingredients_text"]?.ToString();
-
-                // parsing nutritional information
-                string energy = parsedProductInfo["product"]["nutriments"]["energy_100g"]?.ToString();
-                string proteins = parsedProductInfo["product"]["nutriments"]["proteins_100g"]?.ToString();
-                string fat = parsedProductInfo["product"]["nutriments"]["fat_100g"]?.ToString();
-                string carbohydrates = parsedProductInfo["product"]["nutriments"]["carbohydrates_100g"]?.ToString();
-
-                // parsing ingredient analysis
-                string additives = parsedProductInfo["product"]["additives_tags"]?.ToString();
-                string vitamins = parsedProductInfo["product"]["vitamins_tags"]?.ToString();
-                string minerals = parsedProductInfo["product"]["minerals_tags"]?.ToString();
-
-                // displaying all the parsed information
-                rtxtResults.Text = $"Name: {name}\n" +
-                                   $"Ingredients: {ingredients}\n" +
-                                   $"Energy: {energy} kcal\n" +
-                                   $"Protein: {proteins} g\n" +
-                                   $"Fat: {fat} g\n" +
-                                   $"Carbohydrates: {carbohydrates} g\n" +
-                                   $"Additives: {additives}\n" +
-                                   $"Vitamins: {vitamins}\n" +
-                                   $"Minerals: {minerals}";
-            }
-            // if parsing fails
-            catch (Newtonsoft.Json.JsonReaderException)
-            {
-                rtxtResults.Text = "Failed to parse product info.";
+                var parsedProductInfo = JObject.Parse(productInfo);
+                DisplayProductInfo(parsedProductInfo);
             }
             catch (Exception ex)
             {
@@ -64,60 +95,101 @@ namespace barcode
             }
         }
 
-        // event handler for the Upload button click
         private void btnUpload_Click(object sender, EventArgs e)
         {
-            // open file dialog to select an image file
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "Image Files(*.bmp;*.jpg;*.jpeg;*.png)|*.BMP;*.JPG;*.JPEG;*.PNG";
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                Filter = "PNG Image|*.png|JPG Image|*.jpg|JPEG Image|*.jpeg|Bitmap Image|*.bmp",
+                Title = "Select a barcode image"
+            };
 
-            // if a file is selected
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
-                // create a PictureBox and load the selected image
-                PictureBox pb = new PictureBox();
-                pb.Image = new Bitmap(openFileDialog.FileName);
+                // Decode the barcode
+                BarcodeReader reader = new BarcodeReader();
+                var barcodeBitmap = (Bitmap)Image.FromFile(openFileDialog.FileName);
+                var result = reader.Decode(barcodeBitmap);
 
-                // initialize a BarcodeReader to decode the barcode from the image
-                BarcodeReader barcodeReader = new BarcodeReader();
-                var result = barcodeReader.Decode((Bitmap)pb.Image);
-
-                // if a barcode is detected in the image
                 if (result != null)
                 {
                     txtBarcode.Text = result.Text;
-                    // perform the product info retrieval and display process here
-                    btnScan_Click(sender, e);
+                    // Now perform the product search with the barcode
+                    btnScan_Click(null, null);
                 }
                 else
                 {
-                    rtxtResults.Text = "No barcode detected. Try another image.";
+                    rtxtResults.Text = "Barcode could not be decoded from the image.";
                 }
             }
         }
+        private void DisplayProductInfo(JObject productInfo)
+        {
+            StringBuilder sb = new StringBuilder();
 
-        // every barcode has its own json so append barcode to link
+            string name = productInfo["product"]["product_name"]?.ToString();
+            string ingredients = productInfo["product"]["ingredients_text"]?.ToString();
+            string energy = productInfo["product"]["nutriments"]["energy_100g"]?.ToString();
+            string proteins = productInfo["product"]["nutriments"]["proteins_100g"]?.ToString();
+            string fat = productInfo["product"]["nutriments"]["fat_100g"]?.ToString();
+            string carbohydrates = productInfo["product"]["nutriments"]["carbohydrates_100g"]?.ToString();
+            string[] additives = productInfo["product"]["additives_tags"]?.ToObject<string[]>();
+            string[] vitamins = productInfo["product"]["vitamins_tags"]?.ToObject<string[]>();
+            string[] minerals = productInfo["product"]["minerals_tags"]?.ToObject<string[]>();
+
+            sb.AppendLine($"Name: {name}");
+            sb.AppendLine($"Ingredients: {ingredients}");
+            sb.AppendLine($"Energy: {energy} kcal");
+            sb.AppendLine($"Protein: {proteins} g");
+            sb.AppendLine($"Fat: {fat} g");
+            sb.AppendLine($"Carbohydrates: {carbohydrates} g");
+
+            if (additives != null && additives.Length > 0)
+            {
+                sb.AppendLine("Additives:");
+                foreach (string additive in additives)
+                {
+                    // Remove the "en:" prefix
+                    string cleanedAdditive = additive.Replace("en:", "");
+                    sb.AppendLine($"- {cleanedAdditive}");
+                }
+            }
+
+            if (vitamins != null && vitamins.Length > 0)
+            {
+                sb.AppendLine("Vitamins:");
+                foreach (string vitamin in vitamins)
+                {
+                    string cleanedVitamin = vitamin.Replace("en:", "");
+                    sb.AppendLine($"- {cleanedVitamin}");
+                }
+            }
+
+            if (minerals != null && minerals.Length > 0)
+            {
+                sb.AppendLine("Minerals:");
+                foreach (string mineral in minerals)
+                {
+                    string cleanedMineral = mineral.Replace("en:", "");
+                    sb.AppendLine($"- {cleanedMineral}");
+                }
+            }
+
+            rtxtResults.Text = sb.ToString();
+        }
+
+
         private static readonly string baseUrl = "https://world.openpetfoodfacts.org/api/v2/product/";
 
         private static async Task<string> GetProductInfo(string barcode)
         {
-            // construct the URL with the barcode
             string url = baseUrl + barcode;
-            // send a GET request to the API
             using (var client = new HttpClient())
             {
-                client.DefaultRequestHeaders.Add("User-Agent", "PetFoodScannerTest/1.0 (jsham1031@gmail.com)");
+                client.DefaultRequestHeaders.Add("User-Agent", "PetFoodScannerTest/1.0");
                 try
                 {
                     var response = await client.GetAsync(url);
-                    if (response.IsSuccessStatusCode)
-                    {
-                        return await response.Content.ReadAsStringAsync();
-                    }
-                    else
-                    {
-                        return "Product not found or an error occurred.";
-                    }
+                    return response.IsSuccessStatusCode ? await response.Content.ReadAsStringAsync() : "Product not found or an error occurred.";
                 }
                 catch (HttpRequestException ex)
                 {
