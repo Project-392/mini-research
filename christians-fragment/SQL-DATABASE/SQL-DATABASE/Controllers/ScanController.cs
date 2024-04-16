@@ -83,7 +83,7 @@ namespace SQL_DATABASE.Controllers
                 var name = parsedProductInfo["product"]["product_name"]?.ToString();
                 if (!string.IsNullOrEmpty(name))
                 {
-                    string apiKey = "ef1277f066mshbfc54cfe307dc97p10382ajsncb25e3402900"; // Replace with your actual API key
+                    string apiKey = ""; // Replace with your actual API key
                     List<Offer> amazonResults = await AmazonSearchResult(name, apiKey);
                     return Ok(amazonResults);
                 }
