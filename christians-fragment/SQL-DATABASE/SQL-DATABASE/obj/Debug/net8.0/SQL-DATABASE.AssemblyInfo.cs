@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SQL-DATABASE")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+db52d147b6b8aa93a41a3e009ac5a8ee066fa3ca")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6ff6d30e7a8f84ae56be320174dcc571c66f5f38")]
 [assembly: System.Reflection.AssemblyProductAttribute("SQL-DATABASE")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SQL-DATABASE")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

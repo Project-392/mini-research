@@ -180,6 +180,8 @@ const styles = StyleSheet.create({
   statusText: {
     color: "white",
     marginLeft: 6,
+    fontSize: 10,
+    marginTop: 3,
   },
   status: {
     width: 16,
@@ -194,7 +196,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   pfp: {
-    backgroundColor: "white",
+    backgroundColor: "#272727",
     width: 50,
     height: 50,
     borderRadius: 20,
@@ -202,7 +204,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   pfpDot: {
-    backgroundColor: "#9341C6",
+    backgroundColor: "white",
     width: 20,
     height: 20,
     borderRadius: 50,
