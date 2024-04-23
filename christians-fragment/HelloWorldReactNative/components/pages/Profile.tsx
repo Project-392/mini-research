@@ -127,7 +127,7 @@ const Profile: React.FC = () => {
           />
         </View>
       </ScrollView>
-      <GearModal ref={modalizeRef} />
+      <GearModal ref={modalizeRef} navigation={navigation} />
     </View>
   );
 };

@@ -38,7 +38,7 @@ const Main: React.FC = ({ navigation }: any) => {
         </View>
       </View>
       <Chat />
-      <GearModal ref={modalizeRef} />
+      <GearModal ref={modalizeRef} navigation={navigation} />
     </View>
   );
 };

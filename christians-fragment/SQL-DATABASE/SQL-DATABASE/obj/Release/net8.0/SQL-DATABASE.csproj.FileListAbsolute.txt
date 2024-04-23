@@ -34,3 +34,8 @@ C:\Users\tuber\Documents\projects\mini-research\christians-fragment\SQL-DATABASE
 C:\Users\tuber\Documents\projects\mini-research\christians-fragment\SQL-DATABASE\SQL-DATABASE\obj\Release\net8.0\SQL-DATABASE.pdb
 C:\Users\tuber\Documents\projects\mini-research\christians-fragment\SQL-DATABASE\SQL-DATABASE\obj\Release\net8.0\SQL-DATABASE.genruntimeconfig.cache
 C:\Users\tuber\Documents\projects\mini-research\christians-fragment\SQL-DATABASE\SQL-DATABASE\obj\Release\net8.0\ref\SQL-DATABASE.dll
+C:\Users\tuber\Documents\projects\mini-research\christians-fragment\SQL-DATABASE\SQL-DATABASE\bin\Release\net8.0\Microsoft.Win32.SystemEvents.dll
+C:\Users\tuber\Documents\projects\mini-research\christians-fragment\SQL-DATABASE\SQL-DATABASE\bin\Release\net8.0\System.Drawing.Common.dll
+C:\Users\tuber\Documents\projects\mini-research\christians-fragment\SQL-DATABASE\SQL-DATABASE\bin\Release\net8.0\zxing.dll
+C:\Users\tuber\Documents\projects\mini-research\christians-fragment\SQL-DATABASE\SQL-DATABASE\bin\Release\net8.0\ZXing.Windows.Compatibility.dll
+C:\Users\tuber\Documents\projects\mini-research\christians-fragment\SQL-DATABASE\SQL-DATABASE\bin\Release\net8.0\runtimes\win\lib\net8.0\Microsoft.Win32.SystemEvents.dll

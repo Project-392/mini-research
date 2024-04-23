@@ -16,15 +16,18 @@ const GearModal = forwardRef((props, ref) => {
       <View style={[styles.modalContent, { marginTop: 16 }]}>
         <View style={styles.infoContainer}>
           <Text style={styles.title}>Email:</Text>
-          <Text style={styles.info}>email@gmail.com</Text>
+          <Text style={styles.info}>Bdidhodowmnf@gmail.com</Text>
         </View>
         <View style={styles.infoContainer}>
           <Text style={styles.title}>Password:</Text>
           <Text style={styles.info}>******</Text>
         </View>
-        <View style={styles.signoutContainer}>
+        <TouchableOpacity
+          onPress={() => props.navigation.navigate("Welcome")}
+          style={styles.signoutContainer}
+        >
           <Text style={styles.signoutText}>Signout</Text>
-        </View>
+        </TouchableOpacity>
       </View>
     </Modalize>
   );

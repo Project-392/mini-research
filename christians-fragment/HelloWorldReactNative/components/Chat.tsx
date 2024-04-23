@@ -54,6 +54,7 @@ const Chat: React.FC = () => {
   const [isScannerVisible, setIsScannerVisible] = useState<boolean>(false);
   const flatListRef = useRef<FlatList<Message>>(null);
   const [permission, requestPermission] = useCameraPermissions();
+  const [review, setReview] = useState<string>("");
 
   // Define the animated value outside of the useEffect
   const scaleAnim = useRef(new Animated.Value(1)).current;
@@ -134,27 +135,6 @@ const Chat: React.FC = () => {
     }).start();
   };
 
-  // Handle the barcode scanning event
-  const handleBarcodeScanned = ({ type, data }: any) => {
-    setIsScannerVisible(false);
-    startPulsing();
-    const newMessage: Message = {
-      id: Date.now(),
-      text: `Beginning Search on the barcode provided: ${data} of type ${type}`,
-      sender: "other",
-    };
-    setMessages((prevMessages) => [...prevMessages, newMessage]);
-
-    scaleAnim.stopAnimation();
-
-    // Trigger a spring animation upon message receipt
-    Animated.spring(scaleAnim, {
-      toValue: 1, // Animate back to the original scale
-      friction: 3, // Make it a bit bouncy
-      useNativeDriver: true,
-    }).start();
-  };
-
   const renderItem = ({ item }: ListRenderItemInfo<Message>) => (
     <View
       style={[
@@ -174,6 +154,85 @@ const Chat: React.FC = () => {
   const height = useHeaderHeight();
   const handleOpenCamera = () => {
     setIsScannerVisible(true);
+  };
+
+  const fetchProductDetails = async (barcode: string) => {
+    try {
+      const response = await axios.post(
+        "https://mycatgpt392.azurewebsites.net/Scan", // Ensure this matches your actual endpoint
+        { Barcode: barcode }
+      );
+      return response.data; // Returns the API response with product details
+    } catch (error) {
+      console.error("Error fetching product details:", error);
+      return `Error fetching product details: ${error.message}`;
+    }
+  };
+
+  const handleBarcodeScanned = async ({ type, data }: any) => {
+    setIsScannerVisible(false);
+    startPulsing(); // Start pulsing animation
+
+    // Initial scan message
+    const scanMessage: Message = {
+      id: Date.now(),
+      text: `Scanned barcode: ${data} of type ${type}`,
+      sender: "other",
+    };
+
+    setMessages((prevMessages) => [...prevMessages, scanMessage]);
+
+    // Fetch product details
+    const productDetails = await fetchProductDetails(data);
+
+    // Assuming productDetails is an array of products with their details
+    let construct = "";
+    productDetails.forEach((product: any, index: any) => {
+      const message = `Review Rating: ${product.reviewRating}\nReview Count: ${product.reviewCount}\nPrice: ${product.price}\nLink: ${product.link}\nTitle: ${product.title}`;
+      const detailMessage: Message = {
+        id: Date.now() + index + 1, // Ensure unique IDs for each message
+        text: message,
+        sender: "other",
+      };
+      construct += message;
+      setMessages((prevMessages) => [...prevMessages, detailMessage]);
+    });
+
+    //pasting
+
+    const waitMessage: Message = {
+      id: Date.now(), // Ensure unique IDs for each message
+      text: "Writing a review:",
+      sender: "other",
+    };
+
+    // Add reply to messages
+    setMessages((prevMessages) => [...prevMessages, waitMessage]);
+
+    const toSend = `GPT give me a concise review of each product, the concerns and pros of each, and which I might like best to keep my cat healthy of the following: "${construct}"`;
+
+    const replyText = await fetchMessage(toSend);
+
+    const reply: Message = {
+      id: Date.now(),
+      text: replyText,
+      sender: "other",
+    };
+
+    // Add reply to messages
+    setMessages((prevMessages) => [...prevMessages, reply]);
+
+    // Scroll to the bottom
+    flatListRef.current?.scrollToEnd({ animated: true });
+
+    scaleAnim.stopAnimation(); // Stop the pulsing animation
+
+    // Trigger a spring animation upon receiving the product details
+    Animated.spring(scaleAnim, {
+      toValue: 1, // Animate back to the original scale
+      friction: 3, // Make it a bit bouncy
+      useNativeDriver: true,
+    }).start();
   };
 
   return (

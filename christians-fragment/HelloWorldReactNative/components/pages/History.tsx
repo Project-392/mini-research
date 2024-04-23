@@ -36,7 +36,7 @@ const History: React.FC = ({ navigation }: any) => {
         </View>
       </View>
       <QRChat />
-      <GearModal ref={modalizeRef} />
+      <GearModal ref={modalizeRef} navigation={navigation} />
     </View>
   );
 };

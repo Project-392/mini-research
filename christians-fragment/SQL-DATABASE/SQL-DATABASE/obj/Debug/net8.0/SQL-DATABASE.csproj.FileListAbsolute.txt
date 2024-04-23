@@ -108,3 +108,8 @@ C:\Users\gwcko\OneDrive\Desktop\CS392\mini-research\christians-fragment\SQL-DATA
 C:\Users\gwcko\OneDrive\Desktop\CS392\mini-research\christians-fragment\SQL-DATABASE\SQL-DATABASE\bin\Debug\net8.0\zxing.dll
 C:\Users\gwcko\OneDrive\Desktop\CS392\mini-research\christians-fragment\SQL-DATABASE\SQL-DATABASE\bin\Debug\net8.0\ZXing.Windows.Compatibility.dll
 C:\Users\gwcko\OneDrive\Desktop\CS392\mini-research\christians-fragment\SQL-DATABASE\SQL-DATABASE\bin\Debug\net8.0\runtimes\win\lib\net8.0\Microsoft.Win32.SystemEvents.dll
+C:\Users\tuber\Documents\projects\mini-research\christians-fragment\SQL-DATABASE\SQL-DATABASE\bin\Debug\net8.0\Microsoft.Win32.SystemEvents.dll
+C:\Users\tuber\Documents\projects\mini-research\christians-fragment\SQL-DATABASE\SQL-DATABASE\bin\Debug\net8.0\System.Drawing.Common.dll
+C:\Users\tuber\Documents\projects\mini-research\christians-fragment\SQL-DATABASE\SQL-DATABASE\bin\Debug\net8.0\zxing.dll
+C:\Users\tuber\Documents\projects\mini-research\christians-fragment\SQL-DATABASE\SQL-DATABASE\bin\Debug\net8.0\ZXing.Windows.Compatibility.dll
+C:\Users\tuber\Documents\projects\mini-research\christians-fragment\SQL-DATABASE\SQL-DATABASE\bin\Debug\net8.0\runtimes\win\lib\net8.0\Microsoft.Win32.SystemEvents.dll

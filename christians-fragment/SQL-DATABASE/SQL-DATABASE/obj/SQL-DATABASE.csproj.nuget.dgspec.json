@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\gwcko\\OneDrive\\Desktop\\CS392\\mini-research\\christians-fragment\\SQL-DATABASE\\SQL-DATABASE\\SQL-DATABASE.csproj": {}
+    "C:\\Users\\tuber\\Documents\\projects\\mini-research\\christians-fragment\\SQL-DATABASE\\SQL-DATABASE\\SQL-DATABASE.csproj": {}
   },
   "projects": {
-    "C:\\Users\\gwcko\\OneDrive\\Desktop\\CS392\\mini-research\\christians-fragment\\SQL-DATABASE\\SQL-DATABASE\\SQL-DATABASE.csproj": {
+    "C:\\Users\\tuber\\Documents\\projects\\mini-research\\christians-fragment\\SQL-DATABASE\\SQL-DATABASE\\SQL-DATABASE.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\gwcko\\OneDrive\\Desktop\\CS392\\mini-research\\christians-fragment\\SQL-DATABASE\\SQL-DATABASE\\SQL-DATABASE.csproj",
+        "projectUniqueName": "C:\\Users\\tuber\\Documents\\projects\\mini-research\\christians-fragment\\SQL-DATABASE\\SQL-DATABASE\\SQL-DATABASE.csproj",
         "projectName": "SQL-DATABASE",
-        "projectPath": "C:\\Users\\gwcko\\OneDrive\\Desktop\\CS392\\mini-research\\christians-fragment\\SQL-DATABASE\\SQL-DATABASE\\SQL-DATABASE.csproj",
-        "packagesPath": "C:\\Users\\gwcko\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\gwcko\\OneDrive\\Desktop\\CS392\\mini-research\\christians-fragment\\SQL-DATABASE\\SQL-DATABASE\\obj\\",
+        "projectPath": "C:\\Users\\tuber\\Documents\\projects\\mini-research\\christians-fragment\\SQL-DATABASE\\SQL-DATABASE\\SQL-DATABASE.csproj",
+        "packagesPath": "C:\\Users\\tuber\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\tuber\\Documents\\projects\\mini-research\\christians-fragment\\SQL-DATABASE\\SQL-DATABASE\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\gwcko\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\tuber\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -34,11 +34,6 @@
           "warnAsError": [
             "NU1605"
           ]
-        },
-        "restoreAuditProperties": {
-          "enableAudit": "true",
-          "auditLevel": "low",
-          "auditMode": "direct"
         }
       },
       "frameworks": {
@@ -85,7 +80,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.202/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.101/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
