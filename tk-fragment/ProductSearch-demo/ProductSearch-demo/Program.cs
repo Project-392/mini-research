@@ -6,142 +6,83 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using System.Xml.Linq;
+using System.Net.Http.Headers;
 
 namespace ProductSearch_demo
 {
     internal class Program
     {
-        private static HttpClient client = new HttpClient();
         static async Task Main(string[] args)
         {
-            Console.WriteLine("Enter API Key:");
-            string apiKey = Console.ReadLine();
-
             Console.WriteLine("Enter search term:");
             string searchTerm = Console.ReadLine();
-            await SubmitSearch(searchTerm, apiKey);
+            string encodedSearchTerm = searchTerm.Replace(" ", "%20");
+            Console.WriteLine("Searching for: " + encodedSearchTerm);
+
+
+            await FetchProductData(encodedSearchTerm);
         }
 
         // Submit search request. Copied from rapid api documentation
-        private static async Task SubmitSearch(string searchTerm, string apiKey)
+        private static async Task FetchProductData(string searchTerm)
         {
+            var client = new HttpClient();
             var request = new HttpRequestMessage
             {
-                Method = HttpMethod.Post,
-                RequestUri = new Uri("https://price-analytics.p.rapidapi.com/search-by-term"),
+                Method = HttpMethod.Get,
+                RequestUri = new Uri($"https://real-time-amazon-data.p.rapidapi.com/search?query={searchTerm}&page=1&country=US&category_id=aps"),
                 Headers =
-            {
-                { "X-RapidAPI-Key", apiKey },
-                { "X-RapidAPI-Host", "price-analytics.p.rapidapi.com" },
-            },
-                Content = new FormUrlEncodedContent(new Dictionary<string, string>
-            {
-                { "source", "amazon" },
-                { "country", "us" },
-                { "values", searchTerm },
-            }),
+                {
+                    { "X-RapidAPI-Key", "ef1277f066mshbfc54cfe307dc97p10382ajsncb25e3402900" },
+                    { "X-RapidAPI-Host", "real-time-amazon-data.p.rapidapi.com" },
+                },
             };
-            
-            // Poll job status. also copied from rapid api documentation
+
             try
             {
                 using (var response = await client.SendAsync(request))
                 {
                     response.EnsureSuccessStatusCode();
                     var body = await response.Content.ReadAsStringAsync();
-                    var jobId = getJobId(body);
-                    if (!string.IsNullOrEmpty(jobId))
-                    {
-                        Console.WriteLine($"Job submitted successfully. Job ID: {jobId}");
-                        await PollJob(jobId, apiKey);
-                    }
+                    Console.WriteLine("Results:");
+                    DisplayResults(body);
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error submitting search: {ex.Message}");
+                Console.WriteLine($"Error retrieving data: {ex.Message}");
             }
         }
 
-        // 
-        private static async Task PollJob(string jobId, string apiKey)
+
+        private static void DisplayResults(string jsonData)
         {
-            bool isJobFinished = false;
-            Console.WriteLine("Polling job status...");
-            while (!isJobFinished)
-            {
-                var request = new HttpRequestMessage
-                {
-                    Method = HttpMethod.Get,
-                    RequestUri = new Uri($"https://price-analytics.p.rapidapi.com/poll-job/{jobId}"),
-                    Headers =
-                {
-                    { "X-RapidAPI-Key", apiKey },
-                    { "X-RapidAPI-Host", "price-analytics.p.rapidapi.com" },
-                },
-                };
+            // Parse the JSON data
+            var jsonResponse = JObject.Parse(jsonData);
+            var products = jsonResponse["data"]["products"];
 
-                try
+            // Use LINQ to order the products by star rating (descending) and number of ratings (descending)
+            var sortedProducts = products
+                .Select(p => new
                 {
-                    using (var response = await client.SendAsync(request))
-                    {
-                        response.EnsureSuccessStatusCode();
-                        var body = await response.Content.ReadAsStringAsync();
-                        var status = getStatus(body); // Get job status from response
-
-                        if (status == "finished")
-                        {
-                            isJobFinished = true;
-                            Console.WriteLine("Job finished. Results:");
-                            DisplayTopOffers(body);
-                        }
-                        else
-                        {
-                            Console.WriteLine("Job still processing. Waiting before polling again...");
-                            await Task.Delay(10000); // Delay for 10 seconds. Every poll counts as one api call.
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error polling job status: {ex.Message}");
-                    return; 
-                }
-            }
-        }
-
-        private static string getJobId(string body)
-        {
-            var json = JObject.Parse(body);
-            return json["job_id"]?.ToString();
-        }
-
-        private static string getStatus(string body)
-        {
-            var json = JObject.Parse(body);
-            return json["status"]?.ToString();
-        }
-
-        // Display top 10 offers based on rating and review count
-        private static void DisplayTopOffers(string jobResults)
-        {
-            var jsonResponse = JObject.Parse(jobResults);
-            var offers = jsonResponse["results"][0]["content"]["offers"]
-                .Select(offer => new
-                {
-                    ReviewRating = offer["shop_review_rating"],
-                    ReviewCount = offer["shop_review_count"],
-                    Price = offer["price"],
-                    Link = offer["link"]["href"], 
-                    Name = offer["name"]
+                    Title = (string)p["product_title"],
+                    Price = (string)p["product_price"],
+                    ReviewRating = (double)p["product_star_rating"],
+                    ReviewCount = (int)p["product_num_ratings"],
+                    Link = (string)p["product_url"]
                 })
-                .OrderByDescending(offer => offer.ReviewRating)
-                .ThenByDescending(offer => offer.ReviewCount)
-                .Take(10);
+                .OrderByDescending(p => p.ReviewRating)
+                .ThenByDescending(p => p.ReviewCount)
+                .Take(3); // Take only the top three products
 
-            foreach (var offer in offers)
+            // Display the sorted and selected products
+            foreach (var product in sortedProducts)
             {
-                Console.WriteLine($"Name: {offer.Name}, Price: {offer.Price}, Rating: {offer.ReviewRating}, Review Count: {offer.ReviewCount}, Link: {offer.Link}");
+                Console.WriteLine($"Title: {product.Title}");
+                Console.WriteLine($"Price: {product.Price}");
+                Console.WriteLine($"Review Rating: {product.ReviewRating}");
+                Console.WriteLine($"Review Count: {product.ReviewCount}");
+                Console.WriteLine($"Link: {product.Link}\n");
             }
         }
     }
