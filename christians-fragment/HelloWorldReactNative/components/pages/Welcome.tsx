@@ -11,7 +11,7 @@ const Welcome: React.FC<Props> = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <View style={styles.titleContainer}>
-        <Text style={styles.title}>MyPet</Text>
+        <Text style={styles.title}>MyCat</Text>
       </View>
       <View style={styles.buttonContainer}>
         <TouchableOpacity

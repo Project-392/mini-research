@@ -46,11 +46,13 @@ const Login: React.FC<Props> = ({ navigation }: any) => {
         value={email}
         onChangeText={setEmail}
         keyboardType="email-address"
+        placeholderTextColor={"white"}
         autoCapitalize="none"
       />
       <TextInput
         style={styles.input}
         placeholder="Password"
+        placeholderTextColor={"white"}
         value={password}
         onChangeText={setPassword}
         secureTextEntry={true}
@@ -59,9 +61,19 @@ const Login: React.FC<Props> = ({ navigation }: any) => {
         <Text style={styles.buttonText}>Login</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => navigation.navigate("Signup")}>
-        <Text style={{ color: "white", marginTop: 12 }}>
-          Don't have an account?
+      <TouchableOpacity
+        style={{ flexDirection: "row", marginTop: 12, gap: 4 }}
+        onPress={() => navigation.navigate("Signup")}
+      >
+        <Text style={{ color: "white" }}>Don't have an account?</Text>
+        <Text
+          style={{
+            color: "white",
+            textDecorationLine: "underline",
+            fontWeight: "bold",
+          }}
+        >
+          Register Here
         </Text>
       </TouchableOpacity>
     </View>
