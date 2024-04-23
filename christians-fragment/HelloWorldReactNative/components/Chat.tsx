@@ -14,6 +14,11 @@ import {
 } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import axios from "axios";
+import { FontAwesome6 } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useHeaderHeight } from "@react-navigation/elements";
+import { useCameraPermissions } from "expo-camera/next";
+import { BarcodeScanner } from "./BarcodeScanner";
 
 type Message = {
   id: number;
@@ -31,9 +36,12 @@ type Message = {
 
 const fetchMessage = async (text: string) => {
   try {
-    const response = await axios.post("https://localhost:7277/HelloWorld", {
-      text: text, // This is the text you want to send to the backend
-    });
+    const response = await axios.post(
+      "https://mycatgpt392.azurewebsites.net/HelloWorld",
+      {
+        text: text, // This is the text you want to send to the backend
+      }
+    );
     return response.data;
   } catch (error) {
     console.error(error);
@@ -43,10 +51,31 @@ const fetchMessage = async (text: string) => {
 const Chat: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState<string>("");
+  const [isScannerVisible, setIsScannerVisible] = useState<boolean>(false);
   const flatListRef = useRef<FlatList<Message>>(null);
+  const [permission, requestPermission] = useCameraPermissions();
 
   // Define the animated value outside of the useEffect
   const scaleAnim = useRef(new Animated.Value(1)).current;
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      flatListRef.current?.scrollToEnd({ animated: true });
+    }, 100); // Adjust delay as needed
+
+    return () => clearTimeout(timer);
+  }, [messages]);
+
+  // Request camera permission if it has not been granted
+  if (!permission?.granted) {
+    return (
+      <View style={styles.container}>
+        <Text style={{ textAlign: "center" }}>
+          We need your permission to show the camera
+        </Text>
+        <Button onPress={requestPermission} title="grant permission" />
+      </View>
+    );
+  }
 
   // Function to start the pulsing animation
   const startPulsing = () => {
@@ -105,6 +134,27 @@ const Chat: React.FC = () => {
     }).start();
   };
 
+  // Handle the barcode scanning event
+  const handleBarcodeScanned = ({ type, data }: any) => {
+    setIsScannerVisible(false);
+    startPulsing();
+    const newMessage: Message = {
+      id: Date.now(),
+      text: `Beginning Search on the barcode provided: ${data} of type ${type}`,
+      sender: "other",
+    };
+    setMessages((prevMessages) => [...prevMessages, newMessage]);
+
+    scaleAnim.stopAnimation();
+
+    // Trigger a spring animation upon message receipt
+    Animated.spring(scaleAnim, {
+      toValue: 1, // Animate back to the original scale
+      friction: 3, // Make it a bit bouncy
+      useNativeDriver: true,
+    }).start();
+  };
+
   const renderItem = ({ item }: ListRenderItemInfo<Message>) => (
     <View
       style={[
@@ -121,52 +171,81 @@ const Chat: React.FC = () => {
       </Text>
     </View>
   );
+  const height = useHeaderHeight();
+  const handleOpenCamera = () => {
+    setIsScannerVisible(true);
+  };
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <View style={styles.pfp}>
-            <Animated.View
-              style={[
-                styles.pfpDot,
-                {
-                  transform: [{ scale: scaleAnim }], // Bind the animated value to the scale transform
-                },
-              ]}
+      {isScannerVisible ? (
+        <BarcodeScanner
+          onBarcodeScanned={handleBarcodeScanned}
+          setIsScannerVisible={setIsScannerVisible}
+        />
+      ) : (
+        <>
+          <View style={styles.header}>
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <View style={styles.pfp}>
+                <Animated.View
+                  style={[
+                    styles.pfpDot,
+                    {
+                      transform: [{ scale: scaleAnim }], // Bind the animated value to the scale transform
+                    },
+                  ]}
+                />
+              </View>
+              <Text style={styles.headerName}>Ava</Text>
+            </View>
+            <View style={styles.statusContainer}>
+              <View style={styles.status}></View>
+              <Text style={styles.statusText}>Online</Text>
+            </View>
+          </View>
+          <View style={styles.listContainer}>
+            <FlatList
+              ref={flatListRef}
+              data={messages}
+              renderItem={renderItem}
+              keyExtractor={(item) => item.id.toString()}
             />
           </View>
-          <Text style={styles.headerName}>Dr. Mittens</Text>
-        </View>
-        <View style={styles.statusContainer}>
-          <View style={styles.status}></View>
-          <Text style={styles.statusText}>Online</Text>
-        </View>
-      </View>
-      <View style={styles.listContainer}>
-        <FlatList
-          ref={flatListRef}
-          data={messages}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id.toString()}
-        />
-      </View>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.inputContainer}
-      >
-        <View style={styles.sendContainer}>
-          <TextInput
-            style={styles.input}
-            value={inputText}
-            onChangeText={setInputText}
-            placeholder="Type a message..."
-          />
-          <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
-            <AntDesign name="rightcircle" size={35} color="#E9E9E9" />
-          </TouchableOpacity>
-        </View>
-      </KeyboardAvoidingView>
+          <KeyboardAvoidingView
+            keyboardVerticalOffset={height + 140}
+            behavior="padding"
+            style={styles.inputContainer}
+          >
+            <View style={styles.sendContainer}>
+              <TouchableOpacity
+                style={{
+                  height: 50,
+                  justifyContent: "center",
+                  alignItems: "center",
+                  marginRight: 8,
+                }}
+                onPress={handleOpenCamera}
+              >
+                <MaterialCommunityIcons
+                  name="qrcode-scan"
+                  size={32}
+                  color="white"
+                />
+              </TouchableOpacity>
+              <TextInput
+                style={styles.input}
+                value={inputText}
+                onChangeText={setInputText}
+                placeholder="Type a message..."
+              />
+              <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
+                <AntDesign name="rightcircle" size={35} color="#E9E9E9" />
+              </TouchableOpacity>
+            </View>
+          </KeyboardAvoidingView>
+        </>
+      )}
     </View>
   );
 };
@@ -175,7 +254,9 @@ const styles = StyleSheet.create({
   statusContainer: {
     flexDirection: "row",
     marginRight: 10,
-    marginTop: 15,
+    marginTop: 32,
+    justifyContent: "center",
+    alignItems: "center",
   },
   statusText: {
     color: "white",
@@ -196,7 +277,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   pfp: {
-    backgroundColor: "#272727",
+    backgroundColor: "#261E1A",
     width: 50,
     height: 50,
     borderRadius: 20,
@@ -218,7 +299,7 @@ const styles = StyleSheet.create({
     height: 76,
     borderRadius: 20,
     marginHorizontal: 10,
-    marginTop: 25,
+    marginTop: 12,
     marginBottom: 20,
   },
   listContainer: { flex: 8, paddingHorizontal: 10 },
@@ -235,7 +316,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: "#272727",
+    backgroundColor: "#261E1A",
     width: "100%",
   },
   inputContainer: {
@@ -261,7 +342,7 @@ const styles = StyleSheet.create({
   },
   userContainer: {
     alignSelf: "flex-end",
-    backgroundColor: "#DCF8C5", // Light green color for the user message
+    backgroundColor: "#B8E293", // Light green color for the user message
   },
   otherContainer: {
     alignSelf: "flex-start",

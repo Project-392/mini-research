@@ -1,6 +1,6 @@
 // ProfilePicture.tsx
 import React, { useState } from "react";
-import { TouchableOpacity, Image, Alert } from "react-native";
+import { TouchableOpacity, Image, Alert, StyleSheet } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
@@ -8,17 +8,18 @@ const ProfilePicture = () => {
   const [profileImage, setProfileImage] = useState<string | null>(null);
 
   const pickImage = async () => {
-    const permissionResult =
+    let mediaLibraryPermissionResponse;
+    // Request permissions to access the media library
+    mediaLibraryPermissionResponse =
       await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-    if (permissionResult.status !== "granted") {
+    if (mediaLibraryPermissionResponse.status !== "granted") {
       Alert.alert(
         "Permission Required",
-        "Permission to access camera roll is required!"
+        "This requires access to your photo library."
       );
       return;
     }
-
+    // Choosing an image from the gallery
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
@@ -26,11 +27,11 @@ const ProfilePicture = () => {
       quality: 1,
     });
 
-    if (!result.cancelled) {
-      setProfileImage(result.uri);
+    // If the operation is not canceled and an image is picked
+    if (!result.canceled && result.assets) {
+      setProfileImage(result.assets[0].uri);
     }
   };
-
   return (
     <TouchableOpacity onPress={pickImage}>
       {profileImage ? (
@@ -41,14 +42,13 @@ const ProfilePicture = () => {
             height: 100,
             borderRadius: 50,
             borderWidth: 1,
-            borderColor: "#ccc",
           }}
         />
       ) : (
         <MaterialCommunityIcons
           name="account-circle-outline"
           size={100}
-          color="#ccc"
+          color={"white"}
         />
       )}
     </TouchableOpacity>

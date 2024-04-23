@@ -1,5 +1,5 @@
 // Profile.tsx
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   View,
   Text,
@@ -11,6 +11,9 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import ProfilePicture from "../ProfilePicture"; // Ensure this path is correct
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { AntDesign } from "@expo/vector-icons";
+import { Modalize } from "react-native-modalize";
+import GearModal from "../GearModal";
 
 const Profile: React.FC = () => {
   const navigation = useNavigation();
@@ -23,99 +26,158 @@ const Profile: React.FC = () => {
     "Up to date on shots"
   );
 
+  const modalizeRef = useRef<Modalize>(null);
   const toggleEdit = () => {
     setEditable(!editable);
+  };
+
+  const onOpenModal = () => {
+    modalizeRef.current?.open();
+  };
+
+  const getInputStyle = (isEditable: boolean) => {
+    return isEditable
+      ? [styles.input, styles.editableInput] // Apply "after" styles when editable
+      : {}; // Apply "before" styles when not editable
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        {editable ? (
-          <TouchableOpacity onPress={toggleEdit}>
-            <MaterialCommunityIcons name="check" size={30} color="white" />
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity onPress={toggleEdit}>
-            <MaterialCommunityIcons name="pencil" size={30} color="white" />
-          </TouchableOpacity>
-        )}
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <MaterialCommunityIcons name="arrow-left" size={30} color="white" />
+        <TouchableOpacity
+          style={styles.leftControls}
+          onPress={() => navigation.goBack()}
+        >
+          <MaterialCommunityIcons name="arrow-right" size={30} color="white" />
         </TouchableOpacity>
+        <Text style={styles.headerTitle}>Profile</Text>
+        <View style={styles.rightControls}>
+          {editable ? (
+            <TouchableOpacity onPress={toggleEdit}>
+              <MaterialCommunityIcons name="check" size={30} color="white" />
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity onPress={toggleEdit}>
+              <MaterialCommunityIcons name="pencil" size={30} color="white" />
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity
+            style={styles.iconButton}
+            onPress={onOpenModal} // Open modal on press
+          >
+            <AntDesign name="setting" size={30} color="white" />
+          </TouchableOpacity>
+        </View>
       </View>
       <View style={styles.contentContainer}>
         <ProfilePicture />
         <View style={styles.descContainer}>
-          <Text style={[styles.desc, { marginTop: 16 }]}>Name</Text>
+          <Text style={[styles.desc, { marginTop: 12 }, styles.headerDesc]}>
+            Name
+          </Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, styles.headerText, getInputStyle(editable)]}
             value={name}
             onChangeText={setName}
             editable={editable}
           />
         </View>
-        <View style={styles.descContainer}>
-          <Text style={styles.desc}>Age</Text>
+        <View style={[styles.descContainer, styles.headerDescContainer]}>
+          <Text style={[styles.desc, styles.headerDesc]}>Age</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, styles.headerText, getInputStyle(editable)]}
             value={age}
             onChangeText={setAge}
             editable={editable}
           />
         </View>
-
-        <ScrollView style={styles.scrollView}>
-          <View style={styles.descContainer}>
-            <Text style={[styles.desc, styles.bruh]}>Bio</Text>
-            <TextInput
-              style={styles.input}
-              value={description}
-              onChangeText={setDescription}
-              editable={editable}
-              multiline
-              numberOfLines={4}
-            />
-          </View>
-          <View style={styles.descContainer}>
-            <Text style={[styles.desc, styles.bruh]}>Diet</Text>
-            <TextInput
-              style={styles.input}
-              value={diet}
-              onChangeText={setDiet}
-              editable={editable}
-              multiline
-              numberOfLines={4}
-            />
-          </View>
-          <View style={styles.descContainer}>
-            <Text style={[styles.desc, styles.bruh]}>Medical History</Text>
-            <TextInput
-              style={styles.input}
-              value={medicalHistory}
-              onChangeText={setMedicalHistory}
-              editable={editable}
-              multiline
-              numberOfLines={4}
-            />
-          </View>
-        </ScrollView>
       </View>
+      <ScrollView style={styles.scrollView}>
+        <View style={styles.descContainer}>
+          <Text style={[styles.desc, styles.bruh]}>Bio</Text>
+          <TextInput
+            style={[styles.input, styles.bubble, getInputStyle(editable)]}
+            value={description}
+            onChangeText={setDescription}
+            editable={editable}
+            multiline
+            numberOfLines={4}
+          />
+        </View>
+        <View style={styles.descContainer}>
+          <Text style={[styles.desc, styles.bruh]}>Diet</Text>
+          <TextInput
+            style={[styles.input, styles.bubble, getInputStyle(editable)]}
+            value={diet}
+            onChangeText={setDiet}
+            editable={editable}
+            multiline
+            numberOfLines={4}
+          />
+        </View>
+        <View style={[styles.descContainer, { marginBottom: 100 }]}>
+          <Text style={[styles.desc, styles.bruh]}>Medical History</Text>
+          <TextInput
+            style={[styles.input, styles.bubble, getInputStyle(editable)]}
+            value={medicalHistory}
+            onChangeText={setMedicalHistory}
+            editable={editable}
+            multiline
+            numberOfLines={4}
+          />
+        </View>
+      </ScrollView>
+      <GearModal ref={modalizeRef} />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  leftControls: {
+    position: "absolute",
+    left: 20,
+  },
+  rightControls: {
+    flexDirection: "row",
+    alignItems: "center",
+    position: "absolute",
+    right: 12,
+  },
+  headerTitle: {
+    color: "white",
+    fontSize: 28,
+    fontWeight: "bold",
+  },
+  editableInput: {
+    borderWidth: 1,
+    borderColor: "white",
+  },
+  headerText: {
+    fontSize: 20,
+    fontWeight: "bold",
+    borderWidth: 1,
+    borderColor: "#404040",
+  },
+  headerDesc: {
+    fontSize: 18,
+  },
+  iconButton: {
+    padding: 10,
+  },
   bruh: {
     fontSize: 16,
+    marginBottom: 8,
   },
   scrollView: {
-    flex: 1,
+    flex: 2,
     width: "100%",
     borderColor: "white",
-    borderWidth: 1,
+
     padding: 10,
-    backgroundColor: "#181818",
-    paddingTop: 16,
+    backgroundColor: "#261E1A",
+    paddingTop: 18,
+    paddingBottom: 60,
+
     marginTop: 12,
   },
 
@@ -127,23 +189,29 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   contentContainer: {
-    flex: 1,
+    flex: 0.78,
     width: "100%",
     alignItems: "center",
+    paddingHorizontal: 20,
+    paddingBottom: 18,
   },
   container: {
     flex: 1,
-    padding: 20,
     backgroundColor: "black",
   },
   header: {
+    position: "relative",
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "center",
     alignItems: "center",
-    marginBottom: 20,
+    padding: 20,
+    paddingBottom: 5,
+  },
+  bubble: {
+    height: 100,
   },
   input: {
-    borderWidth: 1,
+    borderWidth: 0,
     borderColor: "white",
     padding: 10,
     marginBottom: 10,
