@@ -96,35 +96,6 @@ namespace SQL_DATABASE.Controllers
             }
         }
 
-        /*[HttpPost]
-        public async Task<IActionResult> PostScan([FromBody] BarcodeRequest barcodeRequest)
-        {
-
-            string barcode = barcodeRequest.Barcode;
-            if (string.IsNullOrEmpty(barcode))
-            {
-                return BadRequest("Barcode is required.");
-            }
-         
-            string productInfo = await GetProductInfo(barcode);
-            if (string.IsNullOrEmpty(productInfo))
-            {
-                return NotFound("Product information not found.");
-            }
-
-            JObject parsedProductInfo = JObject.Parse(productInfo);
-            string name = parsedProductInfo["product"]["product_name"]?.ToString();
-            Console.WriteLine(name);
-            if (!string.IsNullOrEmpty(name))
-            {
-                string apiKey = ""; // Replace with your actual API key
-                List<Offer> amazonResults = await AmazonSearchResult(name, apiKey);
-                return Ok(amazonResults);
-            }
-
-            return NotFound("Product name not found in product info.");
-        }*/
-
         // Retrieves product information from an external API using a given barcode. It constructs a URL using the barcode, makes an HTTP GET request, and returns the response as a string if successful. 
         //It throws an exception if the request fails.
         private static async Task<string> GetProductInfo(string barcode)
