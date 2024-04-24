@@ -1,11 +1,12 @@
 // ProfilePicture.tsx
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { TouchableOpacity, Image, Alert, StyleSheet } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import UserContext from "../Context/UserContext";
 
 const ProfilePicture = () => {
-  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const { profileImage, setProfileImage } = useContext(UserContext);
 
   const pickImage = async () => {
     let mediaLibraryPermissionResponse;

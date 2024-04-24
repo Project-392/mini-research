@@ -12,6 +12,7 @@ import Main from "./pages/Main";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 import History from "./pages/History";
+import { UserProvider } from "../Context/UserContext";
 
 const { Navigator, Screen } = createStackNavigator();
 

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useContext } from "react";
 import {
   StyleSheet,
   View,
@@ -16,6 +16,7 @@ import { AntDesign } from "@expo/vector-icons";
 import axios from "axios";
 
 import { useHeaderHeight } from "@react-navigation/elements";
+import UserContext from "../Context/UserContext";
 
 type Message = {
   id: number;
@@ -43,10 +44,9 @@ const fetchMessage = async (text: string) => {
 };
 
 const QRChat: React.FC = () => {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [inputText, setInputText] = useState<string>("");
   const flatListRef = useRef<FlatList<Message>>(null);
 
+  const { scanHistory } = useContext(UserContext);
   // Define the animated value outside of the useEffect
   //   const scaleAnim = useRef(new Animated.Value(1)).current;
 
@@ -108,7 +108,7 @@ const QRChat: React.FC = () => {
       <View style={styles.listContainer}>
         <FlatList
           ref={flatListRef}
-          data={messages}
+          data={scanHistory}
           renderItem={renderItem}
           keyExtractor={(item) => item.id.toString()}
         />

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useContext } from "react";
 import {
   StyleSheet,
   View,
@@ -19,12 +19,8 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { useCameraPermissions } from "expo-camera/next";
 import { BarcodeScanner } from "./BarcodeScanner";
-
-type Message = {
-  id: number;
-  text: string;
-  sender: "user" | "other";
-};
+import UserContext from "../Context/UserContext";
+import { Message } from "../Context/types";
 
 // const dummyResponses: string[] = [
 //   "Hello there!",
@@ -54,7 +50,8 @@ const Chat: React.FC = () => {
   const [isScannerVisible, setIsScannerVisible] = useState<boolean>(false);
   const flatListRef = useRef<FlatList<Message>>(null);
   const [permission, requestPermission] = useCameraPermissions();
-  const [review, setReview] = useState<string>("");
+
+  const { setScanHistory } = useContext(UserContext);
 
   // Define the animated value outside of the useEffect
   const scaleAnim = useRef(new Animated.Value(1)).current;
@@ -186,7 +183,7 @@ const Chat: React.FC = () => {
     const productDetails = await fetchProductDetails(data);
 
     // Assuming productDetails is an array of products with their details
-    let construct = "";
+    let allProducts = "";
     productDetails.forEach((product: any, index: any) => {
       const message = `Review Rating: ${product.reviewRating}\nReview Count: ${product.reviewCount}\nPrice: ${product.price}\nLink: ${product.link}\nTitle: ${product.title}`;
       const detailMessage: Message = {
@@ -194,7 +191,7 @@ const Chat: React.FC = () => {
         text: message,
         sender: "other",
       };
-      construct += message;
+      allProducts += message;
       setMessages((prevMessages) => [...prevMessages, detailMessage]);
     });
 
@@ -209,7 +206,7 @@ const Chat: React.FC = () => {
     // Add reply to messages
     setMessages((prevMessages) => [...prevMessages, waitMessage]);
 
-    const toSend = `GPT give me a concise review of each product, the concerns and pros of each, and which I might like best to keep my cat healthy of the following: "${construct}"`;
+    const toSend = `GPT give me a concise review of each product, the concerns and pros of each, and which I might like best to keep my cat healthy of the following: "${allProducts}"`;
 
     const replyText = await fetchMessage(toSend);
 
@@ -218,6 +215,8 @@ const Chat: React.FC = () => {
       text: replyText,
       sender: "other",
     };
+
+    setScanHistory((prevScanHistory) => [...prevScanHistory, reply]);
 
     // Add reply to messages
     setMessages((prevMessages) => [...prevMessages, reply]);
