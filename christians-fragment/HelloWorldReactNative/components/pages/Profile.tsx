@@ -1,5 +1,5 @@
 // Profile.tsx
-import React, { useRef, useState } from "react";
+import React, { useContext, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -14,17 +14,25 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
 import { Modalize } from "react-native-modalize";
 import GearModal from "../GearModal";
+import UserContext from "../../Context/UserContext";
 
 const Profile: React.FC = () => {
   const navigation = useNavigation();
   const [editable, setEditable] = useState<boolean>(false);
-  const [name, setName] = useState<string>("Fido");
-  const [age, setAge] = useState<string>("5");
-  const [description, setDescription] = useState<string>("Friendly dog");
-  const [diet, setDiet] = useState<string>("Kibble");
-  const [medicalHistory, setMedicalHistory] = useState<string>(
-    "Up to date on shots"
-  );
+
+  const {
+    name,
+    age,
+    bio,
+    diet,
+    medicalHistory,
+    scanHistory,
+    setName,
+    setAge,
+    setBio,
+    setDiet,
+    setMedicalHistory,
+  } = useContext(UserContext);
 
   const modalizeRef = useRef<Modalize>(null);
   const toggleEdit = () => {
@@ -97,8 +105,8 @@ const Profile: React.FC = () => {
           <Text style={[styles.desc, styles.bruh]}>Bio</Text>
           <TextInput
             style={[styles.input, styles.bubble, getInputStyle(editable)]}
-            value={description}
-            onChangeText={setDescription}
+            value={bio}
+            onChangeText={setBio}
             editable={editable}
             multiline
             numberOfLines={4}

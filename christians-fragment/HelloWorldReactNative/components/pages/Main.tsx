@@ -1,5 +1,5 @@
-import React, { useRef } from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import React, { useContext, useRef } from "react";
+import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Modalize } from "react-native-modalize";
@@ -8,9 +8,11 @@ import GearModal from "../GearModal";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Entypo } from "@expo/vector-icons";
+import UserContext from "../../Context/UserContext";
 
 const Main: React.FC = ({ navigation }: any) => {
   const modalizeRef = useRef<Modalize>(null);
+  const { profileImage } = useContext(UserContext);
 
   const onOpenModal = () => {
     modalizeRef.current?.open();
@@ -22,7 +24,23 @@ const Main: React.FC = ({ navigation }: any) => {
           style={[styles.iconButton, styles.leftControls]}
           onPress={() => navigation.navigate("Profile")} // Placeholder for profile navigation
         >
-          <MaterialIcons name="account-circle" size={30} color="white" />
+          {profileImage ? (
+            <Image
+              source={{ uri: profileImage }}
+              style={{
+                width: 42,
+                height: 42,
+                borderRadius: 50,
+                borderWidth: 1,
+              }}
+            />
+          ) : (
+            <MaterialCommunityIcons
+              name="account-circle-outline"
+              size={30}
+              color={"white"}
+            />
+          )}
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Chat</Text>
         <View style={styles.rightControls}>
