@@ -345,7 +345,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   statusText: {
-    color: "white",
+    color: "#CBCBCB",
     marginLeft: 6,
     fontSize: 10,
     marginTop: 3,
@@ -357,16 +357,16 @@ const styles = StyleSheet.create({
     borderRadius: 50,
   },
   headerName: {
-    color: "white",
+    color: "#714279",
     marginLeft: 10,
     fontSize: 20,
     fontWeight: "bold",
   },
   pfp: {
-    backgroundColor: "#261E1A",
+    backgroundColor: "#D391F2",
     width: 50,
     height: 50,
-    borderRadius: 20,
+    borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -381,12 +381,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     flexDirection: "row",
-    backgroundColor: "#0C0C0C",
-    height: 76,
+    backgroundColor: "white",
+    height: 68,
     borderRadius: 20,
     marginHorizontal: 10,
     marginTop: 12,
     marginBottom: 20,
+
+    shadowColor: "#000000", // Shadow color as hex
+    shadowOffset: { width: 2, height: 3 }, // X and Y offset of shadow
+    shadowOpacity: 0.25, // 25% opacity
+    shadowRadius: 4, // Blur radius
+    elevation: 1,
   },
   listContainer: { flex: 8, paddingHorizontal: 10 },
   sendButton: {
