@@ -23,12 +23,13 @@ const Profile: React.FC = () => {
   const {
     name,
     age,
+    breed,
     bio,
     diet,
     medicalHistory,
-    scanHistory,
     setName,
     setAge,
+    setBreed,
     setBio,
     setDiet,
     setMedicalHistory,
@@ -77,29 +78,81 @@ const Profile: React.FC = () => {
           </TouchableOpacity>
         </View>
       </View>
-      <View style={styles.contentContainer}>
-        <ProfilePicture />
-        <View style={styles.descContainer}>
-          <Text style={[styles.desc, { marginTop: 12 }, styles.headerDesc]}>
-            Name
-          </Text>
-          <TextInput
-            style={[styles.input, styles.headerText, getInputStyle(editable)]}
-            value={name}
-            onChangeText={setName}
-            editable={editable}
-          />
-        </View>
-        <View style={[styles.descContainer, styles.headerDescContainer]}>
-          <Text style={[styles.desc, styles.headerDesc]}>Age</Text>
-          <TextInput
-            style={[styles.input, styles.headerText, getInputStyle(editable)]}
-            value={age}
-            onChangeText={setAge}
-            editable={editable}
-          />
+      <View style={{ position: "relative", flex: 1 }}>
+        <View style={styles.contentContainer}>
+          <ProfilePicture />
+          <Text style={styles.nameTitle}>{name || "Fido"}</Text>
+
+          {editable && (
+            <>
+              <View style={styles.descContainer}>
+                <Text
+                  style={[styles.desc, { marginTop: 12 }, styles.headerDesc]}
+                >
+                  Name
+                </Text>
+                <TextInput
+                  style={[
+                    styles.input,
+                    styles.headerText,
+                    getInputStyle(editable),
+                  ]}
+                  value={name}
+                  onChangeText={setName}
+                />
+              </View>
+              <View style={[styles.descContainer, styles.headerDescContainer]}>
+                <Text style={[styles.desc, styles.headerDesc]}>Age</Text>
+                <TextInput
+                  style={[
+                    styles.input,
+                    styles.headerText,
+                    getInputStyle(editable),
+                  ]}
+                  value={age}
+                  onChangeText={setAge}
+                />
+              </View>
+              <View style={[styles.descContainer, styles.headerDescContainer]}>
+                <Text style={[styles.desc, styles.headerDesc]}>Breed</Text>
+                <TextInput
+                  style={[
+                    styles.input,
+                    styles.headerText,
+                    getInputStyle(editable),
+                  ]}
+                  value={breed}
+                  onChangeText={setBreed}
+                />
+              </View>
+            </>
+          )}
+          <View style={styles.infoCard}>
+            <View style={styles.infoContainer}>
+              <View style={styles.infoHeader}>
+                <Text>Breed</Text>
+              </View>
+              <View>
+                <Text style={styles.infoText}>{breed || "breed"}</Text>
+              </View>
+            </View>
+
+            <View
+              style={{ height: "80%", width: 1, backgroundColor: "#D0D0D0" }}
+            />
+
+            <View style={styles.infoContainer}>
+              <View style={styles.infoHeader}>
+                <Text>Age</Text>
+              </View>
+              <View>
+                <Text style={styles.infoText}>{age || "Age"}</Text>
+              </View>
+            </View>
+          </View>
         </View>
       </View>
+
       <ScrollView style={styles.scrollView}>
         <View style={styles.descContainer}>
           <Text style={[styles.desc, styles.bruh]}>Bio</Text>
@@ -141,6 +194,29 @@ const Profile: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
+  infoContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
+  infoHeader: {},
+  infoText: { fontSize: 26 },
+  infoCard: {
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    backgroundColor: "white",
+    width: "100%",
+    height: 86,
+    borderRadius: 10,
+    position: "absolute",
+    bottom: -44,
+    zIndex: 999,
+
+    shadowColor: "#000000", // Shadow color as hex
+    shadowOffset: { width: 2, height: 3 }, // X and Y offset of shadow
+    shadowOpacity: 0.25, // 25% opacity
+    shadowRadius: 4, // Blur radius
+    elevation: 1,
+  },
+  nameTitle: { color: "white", fontSize: 32, fontWeight: "bold" },
   leftControls: {
     position: "absolute",
     left: 20,
@@ -164,10 +240,11 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     borderWidth: 1,
-    borderColor: "#404040",
+    borderColor: "white",
   },
   headerDesc: {
     fontSize: 18,
+    color: "white",
   },
   iconButton: {
     padding: 10,
@@ -182,7 +259,7 @@ const styles = StyleSheet.create({
     borderColor: "white",
 
     padding: 10,
-    backgroundColor: "#261E1A",
+    backgroundColor: "white",
     paddingTop: 18,
     paddingBottom: 60,
 
@@ -191,21 +268,22 @@ const styles = StyleSheet.create({
 
   descContainer: { width: "100%" },
   desc: {
-    color: "white",
+    color: "black",
     fontSize: 18,
     marginBottom: 4,
     fontWeight: "500",
   },
   contentContainer: {
-    flex: 0.78,
+    flex: 0.56,
     width: "100%",
     alignItems: "center",
     paddingHorizontal: 20,
     paddingBottom: 18,
+    backgroundColor: "#D391F2",
   },
   container: {
     flex: 1,
-    backgroundColor: "black",
+    backgroundColor: "white",
   },
   header: {
     position: "relative",
@@ -214,6 +292,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 20,
     paddingBottom: 5,
+    backgroundColor: "#D391F2",
   },
   bubble: {
     height: 100,
@@ -225,9 +304,17 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     borderRadius: 5,
     color: "white",
-    backgroundColor: "black",
+    backgroundColor: "transparent",
     fontSize: 18,
   },
 });
 
 export default Profile;
+
+/**
+shadowColor: "#000000", // Shadow color as hex
+    shadowOffset: { width: 2, height: 3 }, // X and Y offset of shadow
+    shadowOpacity: 0.25, // 25% opacity
+    shadowRadius: 4, // Blur radius
+    elevation: 1,
+ */

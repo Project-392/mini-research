@@ -51,6 +51,8 @@ const Chat: React.FC = () => {
   const [isScannerVisible, setIsScannerVisible] = useState<boolean>(false);
   const [permission, requestPermission] = useCameraPermissions();
   const [focusing, setFocusing] = useState<boolean>(false);
+  const [displayResponse, setDisplayResponse] = useState("");
+  const [completedTyping, setCompletedTyping] = useState(false);
   const flatListRef = useRef<FlatList<Message>>(null);
 
   const height = useHeaderHeight();
@@ -59,6 +61,21 @@ const Chat: React.FC = () => {
   };
 
   const qrButtonScale = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage && lastMessage.sender === "other") {
+      animateText(lastMessage.text);
+    }
+  }, [messages]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      flatListRef.current?.scrollToEnd({ animated: true });
+    }, 100); // Adjust delay as needed
+
+    return () => clearTimeout(timer);
+  }, [messages]);
 
   // New function to handle the input focus
   const handleInputFocus = (focus: boolean) => {
@@ -82,13 +99,6 @@ const Chat: React.FC = () => {
 
   // Define the animated value outside of the useEffect
   const scaleAnim = useRef(new Animated.Value(1)).current;
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      flatListRef.current?.scrollToEnd({ animated: true });
-    }, 100); // Adjust delay as needed
-
-    return () => clearTimeout(timer);
-  }, [messages]);
 
   // Request camera permission if it has not been granted
   if (!permission?.granted) {
@@ -101,6 +111,24 @@ const Chat: React.FC = () => {
       </View>
     );
   }
+
+  // ... other code
+
+  const animateText = (message: string) => {
+    setCompletedTyping(false);
+    let i = 0;
+    const intervalId = setInterval(() => {
+      setDisplayResponse(message.slice(0, i));
+      i++;
+
+      if (i > message.length) {
+        clearInterval(intervalId);
+        setCompletedTyping(true);
+      }
+    }, 20);
+
+    return () => clearInterval(intervalId);
+  };
 
   // Function to start the pulsing animation
   const startPulsing = () => {
@@ -159,22 +187,30 @@ const Chat: React.FC = () => {
     }).start();
   };
 
-  const renderItem = ({ item }: ListRenderItemInfo<Message>) => (
-    <View
-      style={[
-        styles.messageContainer,
-        item.sender === "user" ? styles.userContainer : styles.otherContainer,
-      ]}
-    >
-      <Text
-        style={
-          item.sender === "user" ? styles.userMessage : styles.otherMessage
-        }
+  const renderItem = ({ item }: ListRenderItemInfo<Message>) => {
+    const isTyping = item.sender === "other" && !completedTyping;
+    return (
+      <View
+        style={[
+          styles.messageContainer,
+          item.sender === "user" ? styles.userContainer : styles.otherContainer,
+        ]}
       >
-        {item.text}
-      </Text>
-    </View>
-  );
+        {isTyping ? (
+          <Text style={styles.otherMessage}>{displayResponse}</Text>
+        ) : (
+          // Optionally add a cursor animation component here
+          <Text
+            style={
+              item.sender === "user" ? styles.userMessage : styles.otherMessage
+            }
+          >
+            {item.text}
+          </Text>
+        )}
+      </View>
+    );
+  };
 
   const fetchProductDetails = async (barcode: string) => {
     try {
@@ -401,7 +437,8 @@ const styles = StyleSheet.create({
     height: 50,
     width: 46,
     borderRadius: 8,
-    backgroundColor: "#36004F",
+    backgroundColor: "#814A9B",
+    paddingLeft: 3,
   },
   sendContainer: {
     flexDirection: "row",
@@ -431,7 +468,7 @@ const styles = StyleSheet.create({
   },
   messageContainer: {
     padding: 10,
-    borderRadius: 20,
+    borderRadius: 8,
     marginVertical: 5,
     maxWidth: "80%", // Set a max-width for the message bubbles
   },

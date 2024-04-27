@@ -24,6 +24,9 @@ export interface UserContextType {
   age: string;
   setAge: Dispatch<SetStateAction<string>>;
 
+  breed: string;
+  setBreed: Dispatch<SetStateAction<string>>;
+
   bio: string;
   setBio: Dispatch<SetStateAction<string>>;
 
@@ -43,6 +46,7 @@ export interface UserContextType {
 const defaultState: UserContextType = {
   name: "",
   age: "",
+  breed: "",
   bio: "",
   diet: "",
   medicalHistory: "",
@@ -50,6 +54,7 @@ const defaultState: UserContextType = {
   scanHistory: [],
   setName: () => {},
   setAge: () => {},
+  setBreed: () => {},
   setBio: () => {},
   setDiet: () => {},
   setProfileImage: () => {},
@@ -64,17 +69,19 @@ export const UserProvider: React.FC<PropsWithChildren<{}>> = ({
 }: any) => {
   const [name, setName] = useState<string>("");
   const [age, setAge] = useState<string>("");
+  const [breed, setBreed] = useState<string>("");
   const [bio, setBio] = useState<string>("");
   const [diet, setDiet] = useState<string>("");
   const [medicalHistory, setMedicalHistory] = useState<string>("");
   const [profileImage, setProfileImage] = useState<string>("");
-  const [scanHistory, setScanHistory] = useState<string[]>([]);
+  const [scanHistory, setScanHistory] = useState<Message[]>([]);
 
   return (
     <UserContext.Provider
       value={{
         name,
         age,
+        breed,
         bio,
         diet,
         medicalHistory,
@@ -82,6 +89,7 @@ export const UserProvider: React.FC<PropsWithChildren<{}>> = ({
         scanHistory,
         setName,
         setAge,
+        setBreed,
         setBio,
         setDiet,
         setMedicalHistory,
