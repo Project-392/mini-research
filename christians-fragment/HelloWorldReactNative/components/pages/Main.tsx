@@ -11,8 +11,8 @@ import { Entypo } from "@expo/vector-icons";
 import UserContext from "../../Context/UserContext";
 
 const Main: React.FC = ({ navigation }: any) => {
-  const modalizeRef = useRef<Modalize>(null);
   const { profileImage } = useContext(UserContext);
+  const modalizeRef = useRef<Modalize>(null);
 
   const onOpenModal = () => {
     modalizeRef.current?.open();
@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: "#272727",
+    backgroundColor: "white",
   },
   header: {
     position: "relative",

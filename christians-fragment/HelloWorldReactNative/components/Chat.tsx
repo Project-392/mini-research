@@ -45,13 +45,40 @@ const fetchMessage = async (text: string) => {
 };
 
 const Chat: React.FC = () => {
+  const { setScanHistory } = useContext(UserContext);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState<string>("");
   const [isScannerVisible, setIsScannerVisible] = useState<boolean>(false);
-  const flatListRef = useRef<FlatList<Message>>(null);
   const [permission, requestPermission] = useCameraPermissions();
+  const [focusing, setFocusing] = useState<boolean>(false);
+  const flatListRef = useRef<FlatList<Message>>(null);
 
-  const { setScanHistory } = useContext(UserContext);
+  const height = useHeaderHeight();
+  const handleOpenCamera = () => {
+    setIsScannerVisible(true);
+  };
+
+  const qrButtonScale = useRef(new Animated.Value(1)).current;
+
+  // New function to handle the input focus
+  const handleInputFocus = (focus: boolean) => {
+    setFocusing(true);
+    Animated.timing(qrButtonScale, {
+      toValue: 0, // Scale up when focused
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  // New function to handle the input blur
+  const handleInputBlur = () => {
+    setFocusing(false);
+    Animated.timing(qrButtonScale, {
+      toValue: 1, // Scale down when not focused
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  };
 
   // Define the animated value outside of the useEffect
   const scaleAnim = useRef(new Animated.Value(1)).current;
@@ -148,10 +175,6 @@ const Chat: React.FC = () => {
       </Text>
     </View>
   );
-  const height = useHeaderHeight();
-  const handleOpenCamera = () => {
-    setIsScannerVisible(true);
-  };
 
   const fetchProductDetails = async (barcode: string) => {
     try {
@@ -272,33 +295,38 @@ const Chat: React.FC = () => {
           </View>
           <KeyboardAvoidingView
             keyboardVerticalOffset={height + 140}
-            behavior="padding"
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
             style={styles.inputContainer}
           >
             <View style={styles.sendContainer}>
-              <TouchableOpacity
+              <Animated.View // Make this an Animated.View to animate its properties
                 style={{
                   height: 50,
                   justifyContent: "center",
                   alignItems: "center",
-                  marginRight: 8,
+                  marginRight: focusing ? 0 : 8,
+                  marginLeft: focusing ? -32 : 0,
+                  transform: [{ scale: qrButtonScale }], //I want this to scale to
                 }}
-                onPress={handleOpenCamera}
               >
-                <MaterialCommunityIcons
-                  name="qrcode-scan"
-                  size={32}
-                  color="white"
-                />
-              </TouchableOpacity>
+                <TouchableOpacity onPress={handleOpenCamera}>
+                  <MaterialCommunityIcons
+                    name="qrcode-scan"
+                    size={38}
+                    color="#36004F"
+                  />
+                </TouchableOpacity>
+              </Animated.View>
               <TextInput
                 style={styles.input}
                 value={inputText}
                 onChangeText={setInputText}
                 placeholder="Type a message..."
+                onFocus={handleInputFocus} // Attach the focus event here
+                onBlur={handleInputBlur} // Attach the blur event here
               />
               <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
-                <AntDesign name="rightcircle" size={35} color="#E9E9E9" />
+                <AntDesign name="right" size={32} color="#E9E9E9" />
               </TouchableOpacity>
             </View>
           </KeyboardAvoidingView>
@@ -365,6 +393,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     height: 50,
+    width: 46,
+    borderRadius: 8,
+    backgroundColor: "#36004F",
   },
   sendContainer: {
     flexDirection: "row",
@@ -374,7 +405,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: "#261E1A",
+    backgroundColor: "white",
     width: "100%",
   },
   inputContainer: {
@@ -387,9 +418,9 @@ const styles = StyleSheet.create({
     flex: 1,
     marginRight: 8,
     paddingHorizontal: 10,
-    borderRadius: 20,
+    borderRadius: 8,
     height: 50,
-    backgroundColor: "white",
+    backgroundColor: "#E8E2E2",
     marginBottom: 10,
   },
   messageContainer: {
