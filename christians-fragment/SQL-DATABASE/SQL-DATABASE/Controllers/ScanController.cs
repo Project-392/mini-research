@@ -15,7 +15,7 @@ namespace SQL_DATABASE.Controllers
         private static HttpClient client = new HttpClient();
 
         // Used when ASIN is not available
-        public class Offer
+        public class GeneralOffer
         {
             public string ReviewRating { get; set; }
             public string ReviewCount { get; set; }
@@ -40,15 +40,16 @@ namespace SQL_DATABASE.Controllers
         }
 
         // Used to store product details
-        public class ProductDetails
+        public class ProductInfo
         {
             public string Name { get; set; }
             public string Ingredients { get; set; }
             public string Asin { get; set; }
             //  when ASIN is not available this is used
-            public List<Offer> AmazonOffers { get; set; }
+            public List<GeneralOffer> GeneralOffers { get; set; }
             // when ASIN is available this is used 
-            public List<SellerOffer> AmazonSellerOffers { get; set; }
+            public List<SellerOffer> SellerSpecificOffers { get; set; }
+            public bool wasFound { get; set; }
         }
 
         public class BarcodeInput
@@ -63,14 +64,17 @@ namespace SQL_DATABASE.Controllers
                 return BadRequest("No barcode provided.");
 
             // Get product info from openpetfoodfacts, upcitemdb, and big-product-data API
-            ProductDetails productInfo = await FetchProductDetails(input.Barcode);
+            ProductInfo productInfo = await FetchProductDetails(input.Barcode);
 
-            /*Console.WriteLine("Product Name: " + productInfo.Name);
+            if (productInfo == null)
+                return NotFound("Product information not found.");
+
+           /* Console.WriteLine("Product Name: " + productInfo.Name);
             Console.WriteLine("Product Ingredients: " + productInfo.Ingredients);
             Console.WriteLine("Product ASIN (AMAZON): " + productInfo.Asin);*/
 
             if (string.IsNullOrEmpty(productInfo.Name))
-                return NotFound("Product information not found.");
+                return NotFound("Product Name not found.");
 
             try
             {
@@ -78,13 +82,13 @@ namespace SQL_DATABASE.Controllers
                 if (!string.IsNullOrEmpty(productInfo.Asin))
                 {
                     List<SellerOffer> amazonResults = await AmazonSearchResultASIN(productInfo.Asin);
-                    productInfo.AmazonSellerOffers = amazonResults;
+                    productInfo.SellerSpecificOffers = amazonResults;
                     Console.WriteLine("Amazon Results from ASIN: " + amazonResults);
                 }   
                 else if (!string.IsNullOrEmpty(productInfo.Name))
                 {
-                    List<Offer> amazonResults = await AmazonSearchResult(productInfo.Name);
-                    productInfo.AmazonOffers = amazonResults;
+                    List<GeneralOffer> amazonResults = await AmazonSearchResult(productInfo.Name);
+                    productInfo.GeneralOffers = amazonResults;
                 } 
                 else
                 {
@@ -100,39 +104,36 @@ namespace SQL_DATABASE.Controllers
         }
 
         // Fetch product details from openpetfoodfacts, upcitemdb, and big-product-data APIs
-        public static async Task<ProductDetails> FetchProductDetails(string barcode)
+        public static async Task<ProductInfo> FetchProductDetails(string barcode)
         {
-            ProductDetails details = new ProductDetails();
+            ProductInfo details = new ProductInfo();
 
             // Fetch product name and basic info
-            string openPetFoodFactUrl = "https://world.openpetfoodfacts.org/api/v2/product/" + barcode; // baseUrl should be adjusted as necessary
-            var productInfoResponse = await client.GetAsync(openPetFoodFactUrl);
-            if (productInfoResponse.IsSuccessStatusCode)
+            string openPetFoodFactUrl = "https://world.openpetfoodfacts.org/api/v2/product/" + barcode;
+            var openPetFoodFactResponse = await client.GetAsync(openPetFoodFactUrl);
+            if (openPetFoodFactResponse.IsSuccessStatusCode)
             {
-                string productInfo = await productInfoResponse.Content.ReadAsStringAsync();
+                string productInfo = await openPetFoodFactResponse.Content.ReadAsStringAsync();
                 var productJson = JObject.Parse(productInfo);
                 Console.WriteLine("openpetfoodfacts:" + productJson);
                 details.Name = productJson["product"]["product_name"]?.ToString() ?? null;
-                /*if (details.Name == null)
-                    Console.WriteLine("Product name not found in openpetfoodfacts API.");*/
+                if (details.Name == null)
+                    Console.WriteLine("Product name not found in openpetfoodfacts API.");
             }
-            else
-            {
-                return null;  // Or throw an exception or handle the error as required
-            }
-
             // Fetch ASIN from another API
             string upcItemDBUrl = $"https://api.upcitemdb.com/prod/trial/lookup?upc={barcode}";
             client.DefaultRequestHeaders.Clear();  // Clear previous headers
             var upcItemDBResponse = await client.GetAsync(upcItemDBUrl);
             if (upcItemDBResponse.IsSuccessStatusCode)
             {
-                string asinInfo = await upcItemDBResponse.Content.ReadAsStringAsync();
-                var upcItemDBJson = JObject.Parse(asinInfo);
+                string upcItemDBInfo = await upcItemDBResponse.Content.ReadAsStringAsync();
+                var upcItemDBJson = JObject.Parse(upcItemDBInfo);
                 details.Asin = upcItemDBJson["items"]?[0]?["asin"]?.ToString() ?? null;
+                details.wasFound = details.Asin != null;
                 if (string.IsNullOrEmpty(details.Name))
                 {
                     details.Name = upcItemDBJson["items"]?[0]?["title"]?.ToString();
+                    Console.WriteLine("upcItemDB Name: " + details.Name);
                 }
             }
             // Fetch ingredients from another API
@@ -148,7 +149,8 @@ namespace SQL_DATABASE.Controllers
                 details.Ingredients = bigProductDataJson["properties"]?["ingredients"]?.ToString() ?? null;
                 if (string.IsNullOrEmpty(details.Name))
                 {
-                    details.Name = bigProductDataJson["properties"]?["name"]?.ToString();
+                    details.Name = bigProductDataJson["properties"]?["title"]?[0]?.ToString();
+                    Console.WriteLine("bigProductData Name: " + details.Name);
                 }
             }
             return details;
@@ -187,14 +189,16 @@ namespace SQL_DATABASE.Controllers
                     DeliveryPrice = (string)o["delivery_price"],
                     DeliveryTime = (string)o["delivery_time"]
                 })
+                .OrderByDescending(offer => offer.SellerStarRating)
+                .Take(3)
                 .ToList();
                 return offers;
             }
         }
 
-        private static async Task<List<Offer>> AmazonSearchResult(string searchTerm)
+        private static async Task<List<GeneralOffer>> AmazonSearchResult(string searchTerm)
         {
-            List<Offer> offersList = new List<Offer>();
+            List<GeneralOffer> offersList = new List<GeneralOffer>();
             var request = new HttpRequestMessage
             {
                 Method = HttpMethod.Get,
@@ -212,7 +216,7 @@ namespace SQL_DATABASE.Controllers
                 var body = await response.Content.ReadAsStringAsync();
                 var jsonResponse = JObject.Parse(body);
                 var products = jsonResponse["data"]["products"]
-                    .Select(p => new Offer
+                    .Select(p => new GeneralOffer
                     {
                         Title = (string)p["product_title"],
                         Price = (string)p["product_price"],
