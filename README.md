@@ -41,7 +41,7 @@ wasFound: boolean
 ]
 ```
 
-**ProductDetails**
+**ProductInfo**
 - `name: string` - The name of the product.
 - `ingredients: string` - Ingredients, if applicable.
 - `asin: string` - Amazon Standard Identification Number, if available.
