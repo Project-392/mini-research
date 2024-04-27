@@ -1,6 +1,13 @@
 // Welcome.tsx
 import React from "react";
-import { View, Text, Button, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  Button,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+} from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
 type Props = {
@@ -11,7 +18,15 @@ const Welcome: React.FC<Props> = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <View style={styles.titleContainer}>
-        <Text style={styles.title}>MyCat</Text>
+        <View style={{ height: 90 }}>
+          <Image
+            source={require("./KatApp.png")}
+            style={{
+              width: "100%",
+              height: "100%",
+            }}
+          />
+        </View>
       </View>
       <View style={styles.buttonContainer}>
         <TouchableOpacity
@@ -21,7 +36,7 @@ const Welcome: React.FC<Props> = ({ navigation }) => {
           <Text style={[styles.buttonText, styles.signupText]}>Signup</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={styles.buttonPress}
+          style={[styles.buttonPress, styles.login]}
           onPress={() => navigation.navigate("Login")}
         >
           <Text style={styles.buttonText}>Login</Text>
@@ -39,10 +54,11 @@ const styles = StyleSheet.create({
   },
   buttonText: { fontSize: 24, color: "white", fontWeight: "500" },
   buttonPress: {
-    borderWidth: 1,
+    borderWidth: 2,
     borderRadius: 10,
-    borderColor: "white",
+    borderColor: "#8F33BB",
     color: "white",
+    fontWeight: "bold",
     paddingHorizontal: 10,
     width: "100%",
     alignItems: "center",
@@ -50,14 +66,18 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   signupText: {
-    color: "black",
+    color: "#8F33BB",
+    fontWeight: "bold",
   },
   signup: {
-    backgroundColor: "white",
+    backgroundColor: "transparent",
+    borderColor: "#8F33BB",
   },
   titleContainer: {
     flex: 1,
+    width: "100%",
     justifyContent: "center",
+    paddingHorizontal: 10,
   },
   container: {
     flex: 1,
@@ -65,13 +85,16 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     padding: 20,
 
-    backgroundColor: "black",
+    backgroundColor: "white",
   },
   title: {
     fontSize: 48,
     marginBottom: 20,
     color: "white",
     fontWeight: "bold",
+  },
+  login: {
+    backgroundColor: "#8F33BB",
   },
 });
 
