@@ -11,6 +11,7 @@ import {
   ListRenderItemInfo,
   TouchableOpacity,
   Animated,
+  Keyboard,
 } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import axios from "axios";
@@ -21,6 +22,7 @@ import { useCameraPermissions } from "expo-camera/next";
 import { BarcodeScanner } from "./BarcodeScanner";
 import UserContext from "../Context/UserContext";
 import { Message } from "../Context/types";
+import { Feather } from "@expo/vector-icons";
 
 // const dummyResponses: string[] = [
 //   "Hello there!",
@@ -45,23 +47,50 @@ const fetchMessage = async (text: string) => {
 };
 
 const Chat: React.FC = () => {
-  const { setScanHistory } = useContext(UserContext);
-  const [messages, setMessages] = useState<Message[]>([]);
+  const { setScanHistory, messageHistory, setMessageHistory } =
+    useContext(UserContext);
   const [inputText, setInputText] = useState<string>("");
   const [isScannerVisible, setIsScannerVisible] = useState<boolean>(false);
   const [permission, requestPermission] = useCameraPermissions();
   const [focusing, setFocusing] = useState<boolean>(false);
   const [displayResponse, setDisplayResponse] = useState("");
-  const [completedTyping, setCompletedTyping] = useState(false);
+  const [completedTyping, setCompletedTyping] = useState(true);
   const flatListRef = useRef<FlatList<Message>>(null);
   const [lastMessage, setLastMessage] = useState<Message | null>(null);
   const [newestOtherMessage, setNewestOtherMessage] = useState<Message | null>(
     null
   );
+  const [inputOpacity] = useState(new Animated.Value(1));
+
+  useEffect(() => {
+    // Animate the opacity when completedTyping changes
+    Animated.timing(inputOpacity, {
+      toValue: completedTyping ? 1 : 0.5,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  }, [completedTyping]);
 
   const height = useHeaderHeight();
   const handleOpenCamera = () => {
     setIsScannerVisible(true);
+  };
+
+  useEffect(() => {
+    // Subscribe to keyboard show and hide events
+    const keyboardDidShowListener = Keyboard.addListener(
+      "keyboardDidShow",
+      scrollToBottom
+    );
+
+    // Cleanup the listeners on component unmount
+    return () => {
+      keyboardDidShowListener.remove();
+    };
+  }, []);
+
+  const scrollToBottom = () => {
+    flatListRef.current?.scrollToEnd({ animated: true });
   };
 
   const qrButtonScale = useRef(new Animated.Value(1)).current;
@@ -78,11 +107,12 @@ const Chat: React.FC = () => {
     }, 100); // Adjust delay as needed
 
     return () => clearTimeout(timer);
-  }, [messages]);
+  }, [messageHistory]);
 
   // New function to handle the input focus
   const handleInputFocus = (focus: boolean) => {
     setFocusing(true);
+    scrollToBottom();
     Animated.timing(qrButtonScale, {
       toValue: 0, // Scale up when focused
       duration: 300,
@@ -128,7 +158,10 @@ const Chat: React.FC = () => {
         clearInterval(intervalId);
         setCompletedTyping(true);
         // Once the animation completes, add the message to the main list
-        setMessages((prevMessages) => [...prevMessages, newestOtherMessage]);
+        setMessageHistory((prevMessages) => [
+          ...prevMessages,
+          newestOtherMessage,
+        ]);
         setNewestOtherMessage(null); // Clear the newest other message
       }
     }, 20);
@@ -165,7 +198,7 @@ const Chat: React.FC = () => {
       text: inputText,
       sender: "user",
     };
-    setMessages((prevMessages) => [...prevMessages, newMessage]);
+    setMessageHistory((prevMessages) => [...prevMessages, newMessage]);
     setInputText("");
 
     const replyText = await fetchMessage(inputText);
@@ -231,7 +264,7 @@ const Chat: React.FC = () => {
       sender: "other",
     };
 
-    setMessages((prevMessages) => [...prevMessages, scanMessage]);
+    setMessageHistory((prevMessages) => [...prevMessages, scanMessage]);
 
     // Fetch product details
     const productDetails = await fetchProductDetails(data);
@@ -246,7 +279,7 @@ const Chat: React.FC = () => {
         sender: "other",
       };
       allProducts += message;
-      setMessages((prevMessages) => [...prevMessages, detailMessage]);
+      setMessageHistory((prevMessages) => [...prevMessages, detailMessage]);
     });
 
     //pasting
@@ -258,7 +291,7 @@ const Chat: React.FC = () => {
     };
 
     // Add reply to messages
-    setMessages((prevMessages) => [...prevMessages, waitMessage]);
+    setMessageHistory((prevMessages) => [...prevMessages, waitMessage]);
 
     const toSend = `GPT give me a concise review of each product, the concerns and pros of each, and which I might like best to keep my cat healthy of the following: "${allProducts}"`;
 
@@ -273,7 +306,7 @@ const Chat: React.FC = () => {
     setScanHistory((prevScanHistory) => [...prevScanHistory, reply]);
 
     // Add reply to messages
-    setMessages((prevMessages) => [...prevMessages, reply]);
+    setMessageHistory((prevMessages) => [...prevMessages, reply]);
 
     // Scroll to the bottom
     flatListRef.current?.scrollToEnd({ animated: true });
@@ -319,7 +352,7 @@ const Chat: React.FC = () => {
           <View style={styles.listContainer}>
             <FlatList
               ref={flatListRef}
-              data={messages}
+              data={messageHistory}
               renderItem={renderItem}
               keyExtractor={(item) => item.id.toString()}
               ListFooterComponent={() =>
@@ -357,14 +390,22 @@ const Chat: React.FC = () => {
                   />
                 </TouchableOpacity>
               </Animated.View>
-              <TextInput
-                style={styles.input}
-                value={inputText}
-                onChangeText={setInputText}
-                placeholder="Type a message..."
-                onFocus={handleInputFocus} // Attach the focus event here
-                onBlur={handleInputBlur} // Attach the blur event here
-              />
+              <Animated.View
+                style={[{ opacity: inputOpacity, flex: 1, height: 60 }]}
+              >
+                <TextInput
+                  editable={completedTyping}
+                  style={[
+                    styles.input,
+                    !completedTyping ? { opacity: 0.5 } : {}, // Set opacity to 0.8 when typing is not completed
+                  ]}
+                  value={inputText}
+                  onChangeText={setInputText}
+                  placeholder="Type a message..."
+                  onFocus={handleInputFocus} // Attach the focus event here
+                  onBlur={handleInputBlur} // Attach the blur event here
+                />
+              </Animated.View>
               <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
                 <AntDesign name="right" size={32} color="#E9E9E9" />
               </TouchableOpacity>

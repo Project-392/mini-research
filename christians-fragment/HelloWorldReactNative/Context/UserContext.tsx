@@ -41,6 +41,9 @@ export interface UserContextType {
 
   scanHistory: Message[];
   setScanHistory: Dispatch<SetStateAction<Message[]>>;
+
+  messageHistory: Message[];
+  setMessageHistory: Dispatch<SetStateAction<Message[] | null>>;
 }
 
 const defaultState: UserContextType = {
@@ -52,6 +55,7 @@ const defaultState: UserContextType = {
   medicalHistory: "",
   profileImage: "",
   scanHistory: [],
+  messageHistory: [],
   setName: () => {},
   setAge: () => {},
   setBreed: () => {},
@@ -60,6 +64,7 @@ const defaultState: UserContextType = {
   setProfileImage: () => {},
   setMedicalHistory: () => {},
   setScanHistory: () => {},
+  setMessageHistory: () => {},
 };
 
 const UserContext = React.createContext<UserContextType>(defaultState);
@@ -75,6 +80,7 @@ export const UserProvider: React.FC<PropsWithChildren<{}>> = ({
   const [medicalHistory, setMedicalHistory] = useState<string>("");
   const [profileImage, setProfileImage] = useState<string>("");
   const [scanHistory, setScanHistory] = useState<Message[]>([]);
+  const [messageHistory, setMessageHistory] = useState<Message[]>([]);
 
   return (
     <UserContext.Provider
@@ -87,6 +93,7 @@ export const UserProvider: React.FC<PropsWithChildren<{}>> = ({
         medicalHistory,
         profileImage,
         scanHistory,
+        messageHistory,
         setName,
         setAge,
         setBreed,
@@ -95,6 +102,7 @@ export const UserProvider: React.FC<PropsWithChildren<{}>> = ({
         setMedicalHistory,
         setProfileImage,
         setScanHistory,
+        setMessageHistory,
       }}
     >
       {children}
