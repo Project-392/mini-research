@@ -7,6 +7,8 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import ProfilePicture from "../ProfilePicture"; // Ensure this path is correct
@@ -46,12 +48,19 @@ const Profile: React.FC = ({ modalizeRef }: any) => {
   const getInputStyle = (isEditable: boolean) => {
     return isEditable
       ? [styles.input, styles.editableInput] // Apply "after" styles when editable
-      : {
-          shadowOffset: { width: 2, height: 3 }, // X and Y offset of shadow
-          shadowOpacity: 0.25, // 25% opacity
-          shadowRadius: 4, // Blur radius
-          elevation: 1,
-        }; // Apply "before" styles when not editable
+      : [
+          styles.input,
+          {
+            shadowOffset: { width: 2, height: 3 }, // X and Y offset of shadow
+            shadowOpacity: 0.25, // 25% opacity
+            shadowRadius: 4, // Blur radius
+            elevation: 1,
+          },
+        ]; // Apply "before" styles when not editable
+  };
+
+  const handleInputFocus = () => {
+    flatListRef.current?.scrollToEnd({ animated: true });
   };
 
   return (
@@ -82,130 +91,156 @@ const Profile: React.FC = ({ modalizeRef }: any) => {
           </TouchableOpacity>
         </View>
       </View>
-      <ScrollView
-        style={[styles.container, { backgroundColor: "transparent" }]}
-        contentInsetAdjustmentBehavior="never"
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
       >
-        <View style={{ position: "relative", flex: 1 }}>
-          <View style={styles.contentContainer}>
-            <ProfilePicture />
-            <Text style={styles.nameTitle}>{name || "Fido"}</Text>
+        <ScrollView
+          style={[styles.container, { backgroundColor: "transparent" }]}
+          contentInsetAdjustmentBehavior="never"
+        >
+          <View style={{ position: "relative", flex: 1 }}>
+            <View style={styles.contentContainer}>
+              <ProfilePicture />
+              <Text style={styles.nameTitle}>{name || "Fido"}</Text>
 
-            {editable && (
-              <>
-                <View style={styles.descContainer}>
-                  <Text
-                    style={[styles.desc, { marginTop: 12 }, styles.headerDesc]}
+              {editable && (
+                <>
+                  <View style={styles.descContainer}>
+                    <Text
+                      style={[
+                        styles.desc,
+                        { marginTop: 12 },
+                        styles.headerDesc,
+                      ]}
+                    >
+                      Name
+                    </Text>
+                    <TextInput
+                      style={[
+                        styles.input,
+                        styles.headerText,
+                        getInputStyle(editable),
+                      ]}
+                      value={name}
+                      onChangeText={setName}
+                    />
+                  </View>
+                  <View
+                    style={[styles.descContainer, styles.headerDescContainer]}
                   >
-                    Name
-                  </Text>
-                  <TextInput
-                    style={[
-                      styles.input,
-                      styles.headerText,
-                      getInputStyle(editable),
-                    ]}
-                    value={name}
-                    onChangeText={setName}
-                  />
+                    <Text style={[styles.desc, styles.headerDesc]}>Age</Text>
+                    <TextInput
+                      style={[
+                        styles.input,
+                        styles.headerText,
+                        getInputStyle(editable),
+                      ]}
+                      value={age}
+                      onChangeText={setAge}
+                    />
+                  </View>
+                  <View
+                    style={[styles.descContainer, styles.headerDescContainer]}
+                  >
+                    <Text style={[styles.desc, styles.headerDesc]}>Breed</Text>
+                    <TextInput
+                      style={[
+                        styles.input,
+                        styles.headerText,
+                        getInputStyle(editable),
+                      ]}
+                      value={breed}
+                      onChangeText={setBreed}
+                    />
+                  </View>
+                </>
+              )}
+            </View>
+          </View>
+          {!editable && (
+            <View style={styles.infoCardContainer}>
+              <View style={styles.infoCard}>
+                <View style={styles.infoContainer}>
+                  <View style={styles.infoHeader}>
+                    <Text>Breed</Text>
+                  </View>
+                  <View>
+                    <Text style={styles.infoText}>{breed || "Breed"}</Text>
+                  </View>
                 </View>
-                <View
-                  style={[styles.descContainer, styles.headerDescContainer]}
-                >
-                  <Text style={[styles.desc, styles.headerDesc]}>Age</Text>
-                  <TextInput
-                    style={[
-                      styles.input,
-                      styles.headerText,
-                      getInputStyle(editable),
-                    ]}
-                    value={age}
-                    onChangeText={setAge}
-                  />
-                </View>
-                <View
-                  style={[styles.descContainer, styles.headerDescContainer]}
-                >
-                  <Text style={[styles.desc, styles.headerDesc]}>Breed</Text>
-                  <TextInput
-                    style={[
-                      styles.input,
-                      styles.headerText,
-                      getInputStyle(editable),
-                    ]}
-                    value={breed}
-                    onChangeText={setBreed}
-                  />
-                </View>
-              </>
-            )}
-            <View style={styles.infoCard}>
-              <View style={styles.infoContainer}>
-                <View style={styles.infoHeader}>
-                  <Text>Breed</Text>
-                </View>
-                <View>
-                  <Text style={styles.infoText}>{breed || "Breed"}</Text>
-                </View>
-              </View>
 
-              <View
-                style={{ height: "80%", width: 1, backgroundColor: "#D0D0D0" }}
-              />
+                <View
+                  style={{
+                    height: "80%",
+                    width: 1,
+                    backgroundColor: "#D0D0D0",
+                  }}
+                />
 
-              <View style={styles.infoContainer}>
-                <View style={styles.infoHeader}>
-                  <Text>Age</Text>
-                </View>
-                <View>
-                  <Text style={styles.infoText}>{age || "Age"}</Text>
+                <View style={styles.infoContainer}>
+                  <View style={styles.infoHeader}>
+                    <Text>Age</Text>
+                  </View>
+                  <View>
+                    <Text style={styles.infoText}>{age || "Age"}</Text>
+                  </View>
                 </View>
               </View>
             </View>
+          )}
+          <View style={styles.scrollView}>
+            <View style={styles.descContainer}>
+              <Text style={[styles.desc, styles.bruh]}>Bio</Text>
+              <TextInput
+                style={[styles.input, styles.bubble, getInputStyle(editable)]}
+                value={bio}
+                onChangeText={setBio}
+                editable={editable}
+                multiline
+                numberOfLines={4}
+              />
+            </View>
+            <View style={styles.descContainer}>
+              <Text style={[styles.desc, styles.bruh]}>Diet</Text>
+              <TextInput
+                style={[styles.input, styles.bubble, getInputStyle(editable)]}
+                value={diet}
+                onChangeText={setDiet}
+                editable={editable}
+                multiline
+                numberOfLines={4}
+              />
+            </View>
+            <View style={[styles.descContainer, { marginBottom: 100 }]}>
+              <Text style={[styles.desc, styles.bruh]}>Medical History</Text>
+              <TextInput
+                style={[styles.input, styles.bubble, getInputStyle(editable)]}
+                value={medicalHistory}
+                onChangeText={setMedicalHistory}
+                editable={editable}
+                multiline
+                numberOfLines={4}
+                onFocus={handleInputFocus}
+              />
+            </View>
           </View>
-        </View>
-
-        <View style={styles.scrollView}>
-          <View style={styles.descContainer}>
-            <Text style={[styles.desc, styles.bruh]}>Bio</Text>
-            <TextInput
-              style={[styles.input, styles.bubble, getInputStyle(editable)]}
-              value={bio}
-              onChangeText={setBio}
-              editable={editable}
-              multiline
-              numberOfLines={4}
-            />
-          </View>
-          <View style={styles.descContainer}>
-            <Text style={[styles.desc, styles.bruh]}>Diet</Text>
-            <TextInput
-              style={[styles.input, styles.bubble, getInputStyle(editable)]}
-              value={diet}
-              onChangeText={setDiet}
-              editable={editable}
-              multiline
-              numberOfLines={4}
-            />
-          </View>
-          <View style={[styles.descContainer, { marginBottom: 100 }]}>
-            <Text style={[styles.desc, styles.bruh]}>Medical History</Text>
-            <TextInput
-              style={[styles.input, styles.bubble, getInputStyle(editable)]}
-              value={medicalHistory}
-              onChangeText={setMedicalHistory}
-              editable={editable}
-              multiline
-              numberOfLines={4}
-            />
-          </View>
-        </View>
-      </ScrollView>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  infoCardContainer: {
+    width: "100%",
+    height: 50,
+    backgroundColor: "white",
+    zIndex: 0,
+    paddingHorizontal: 12,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   infoContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
   infoHeader: {},
   infoText: { fontSize: 26 },
@@ -219,7 +254,7 @@ const styles = StyleSheet.create({
     height: 86,
     borderRadius: 10,
     position: "absolute",
-    bottom: -44,
+    top: -44,
     zIndex: 999,
 
     shadowColor: "#000000", // Shadow color as hex
@@ -247,6 +282,7 @@ const styles = StyleSheet.create({
   editableInput: {
     borderWidth: 1,
     borderColor: "#DDDDDD",
+    backgroundColor: "transparent",
   },
   headerText: {
     fontSize: 20,
@@ -273,12 +309,10 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: "white",
     paddingTop: 18,
-    paddingBottom: 60,
-
-    marginTop: 12,
+    paddingBottom: 0,
   },
 
-  descContainer: { width: "100%" },
+  descContainer: { width: "100%", marginBottom: 18 },
   desc: {
     color: "black",
     fontSize: 18,
@@ -286,11 +320,11 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   contentContainer: {
-    flex: 0.56,
+    flex: 1,
     width: "100%",
     alignItems: "center",
     paddingHorizontal: 20,
-    paddingBottom: 18,
+    paddingBottom: 50,
     backgroundColor: "#D391F2",
   },
   container: {
@@ -307,16 +341,17 @@ const styles = StyleSheet.create({
     backgroundColor: "#D391F2",
   },
   bubble: {
-    height: 100,
+    height: 130,
   },
   input: {
     borderWidth: 0,
     borderColor: "white",
-    padding: 10,
+    padding: 16,
+    paddingTop: 10,
     marginBottom: 10,
     borderRadius: 5,
-    color: "white",
-    backgroundColor: "transparent",
+    color: "black",
+    backgroundColor: "white",
     fontSize: 18,
   },
 });
