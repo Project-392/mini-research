@@ -54,6 +54,10 @@ const Chat: React.FC = () => {
   const [displayResponse, setDisplayResponse] = useState("");
   const [completedTyping, setCompletedTyping] = useState(false);
   const flatListRef = useRef<FlatList<Message>>(null);
+  const [lastMessage, setLastMessage] = useState<Message | null>(null);
+  const [newestOtherMessage, setNewestOtherMessage] = useState<Message | null>(
+    null
+  );
 
   const height = useHeaderHeight();
   const handleOpenCamera = () => {
@@ -63,11 +67,10 @@ const Chat: React.FC = () => {
   const qrButtonScale = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    const lastMessage = messages[messages.length - 1];
-    if (lastMessage && lastMessage.sender === "other") {
-      animateText(lastMessage.text);
+    if (newestOtherMessage) {
+      animateText(newestOtherMessage.text);
     }
-  }, [messages]);
+  }, [newestOtherMessage]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -124,6 +127,9 @@ const Chat: React.FC = () => {
       if (i > message.length) {
         clearInterval(intervalId);
         setCompletedTyping(true);
+        // Once the animation completes, add the message to the main list
+        setMessages((prevMessages) => [...prevMessages, newestOtherMessage]);
+        setNewestOtherMessage(null); // Clear the newest other message
       }
     }, 20);
 
@@ -160,35 +166,29 @@ const Chat: React.FC = () => {
       sender: "user",
     };
     setMessages((prevMessages) => [...prevMessages, newMessage]);
-
-    // Clear input field
     setInputText("");
 
     const replyText = await fetchMessage(inputText);
-
     const reply: Message = {
       id: Date.now(),
       text: replyText,
       sender: "other",
     };
 
-    // Add reply to messages
-    setMessages((prevMessages) => [...prevMessages, reply]);
+    // Instead of immediately adding to messages, set it as the newest other message
+    setNewestOtherMessage(reply);
 
-    // Scroll to the bottom
     flatListRef.current?.scrollToEnd({ animated: true });
     scaleAnim.stopAnimation();
 
-    // Trigger a spring animation upon message receipt
     Animated.spring(scaleAnim, {
-      toValue: 1, // Animate back to the original scale
-      friction: 3, // Make it a bit bouncy
+      toValue: 1,
+      friction: 3,
       useNativeDriver: true,
     }).start();
   };
 
   const renderItem = ({ item }: ListRenderItemInfo<Message>) => {
-    const isTyping = item.sender === "other" && !completedTyping;
     return (
       <View
         style={[
@@ -196,18 +196,13 @@ const Chat: React.FC = () => {
           item.sender === "user" ? styles.userContainer : styles.otherContainer,
         ]}
       >
-        {isTyping ? (
-          <Text style={styles.otherMessage}>{displayResponse}</Text>
-        ) : (
-          // Optionally add a cursor animation component here
-          <Text
-            style={
-              item.sender === "user" ? styles.userMessage : styles.otherMessage
-            }
-          >
-            {item.text}
-          </Text>
-        )}
+        <Text
+          style={
+            item.sender === "user" ? styles.userMessage : styles.otherMessage
+          }
+        >
+          {item.text}
+        </Text>
       </View>
     );
   };
@@ -327,6 +322,15 @@ const Chat: React.FC = () => {
               data={messages}
               renderItem={renderItem}
               keyExtractor={(item) => item.id.toString()}
+              ListFooterComponent={() =>
+                newestOtherMessage && !completedTyping ? (
+                  <View
+                    style={[styles.messageContainer, styles.otherContainer]}
+                  >
+                    <Text style={styles.otherMessage}>{displayResponse}</Text>
+                  </View>
+                ) : null
+              }
             />
           </View>
           <KeyboardAvoidingView
@@ -373,6 +377,9 @@ const Chat: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
+  fakeText: {
+    backgroundColor: "red",
+  },
   statusContainer: {
     flexDirection: "row",
     marginRight: 10,
