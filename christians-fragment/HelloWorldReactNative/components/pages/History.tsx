@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useContext, useRef } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -9,10 +9,9 @@ import { FontAwesome6 } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Entypo } from "@expo/vector-icons";
 import QRChat from "../QRChat";
+import UserContext from "../../Context/UserContext";
 
-const History: React.FC = ({ navigation }: any) => {
-  const modalizeRef = useRef<Modalize>(null);
-
+const History: React.FC = ({ navigation, modalizeRef }: any) => {
   const onOpenModal = () => {
     modalizeRef.current?.open();
   };

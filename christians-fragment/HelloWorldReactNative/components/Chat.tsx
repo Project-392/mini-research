@@ -437,7 +437,7 @@ const styles = StyleSheet.create({
     height: 50,
     width: 46,
     borderRadius: 8,
-    backgroundColor: "#814A9B",
+    backgroundColor: "#BE75E1",
     paddingLeft: 3,
   },
   sendContainer: {

@@ -10,9 +10,8 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Entypo } from "@expo/vector-icons";
 import UserContext from "../../Context/UserContext";
 
-const Main: React.FC = ({ navigation }: any) => {
+const Main: React.FC = ({ navigation, modalizeRef }: any) => {
   const { profileImage } = useContext(UserContext);
-  const modalizeRef = useRef<Modalize>(null);
 
   const onOpenModal = () => {
     modalizeRef.current?.open();
@@ -56,7 +55,6 @@ const Main: React.FC = ({ navigation }: any) => {
         </View>
       </View>
       <Chat />
-      <GearModal ref={modalizeRef} navigation={navigation} />
     </View>
   );
 };
@@ -88,7 +86,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 18,
     paddingBottom: 18,
-    backgroundColor: "#BE75E1",
+    backgroundColor: "#D391F2",
   },
   headerTitle: {
     fontSize: 24,

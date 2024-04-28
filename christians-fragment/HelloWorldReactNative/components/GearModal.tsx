@@ -1,9 +1,11 @@
 // GearModal.js
+import { useNavigation } from "@react-navigation/native";
 import React, { forwardRef } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Modalize } from "react-native-modalize";
 
 const GearModal = forwardRef((props, ref) => {
+  const navigation = useNavigation();
   return (
     <Modalize
       ref={ref}
@@ -62,6 +64,7 @@ const styles = StyleSheet.create({
     width: "100%",
     flexDirection: "row",
     paddingVertical: 12,
+    marginBottom: 18,
   },
   infoContainer: {
     flexDirection: "row",
