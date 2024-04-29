@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import {
   NavigationContainer,
+  useNavigation,
   useNavigationState,
 } from "@react-navigation/native";
 import Welcome from "./pages/Welcome";
@@ -29,6 +30,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 const { Navigator, Screen } = createStackNavigator();
 
 const AppStack = () => {
+  const navigation = useNavigation();
   const modalizeRef = useRef<Modalize>(null);
   const withModalize = (Component: any) => {
     return (props: any) => <Component {...props} modalizeRef={modalizeRef} />;
@@ -82,7 +84,7 @@ const AppStack = () => {
           {/* Add other screens here */}
         </Navigator>
       </SafeAreaView>
-      <GearModal ref={modalizeRef} />
+      <GearModal ref={modalizeRef} navigation={navigation} />
     </View>
   );
 };

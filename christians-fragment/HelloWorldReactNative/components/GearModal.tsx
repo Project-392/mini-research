@@ -6,6 +6,12 @@ import { Modalize } from "react-native-modalize";
 
 const GearModal = forwardRef((props, ref) => {
   const navigation = useNavigation();
+  const handleSignout = () => {
+    if (ref.current) {
+      ref.current.close(); // This closes the modal
+    }
+    navigation.navigate("Welcome"); // Navigate to Welcome screen
+  };
   return (
     <Modalize
       ref={ref}
@@ -25,7 +31,7 @@ const GearModal = forwardRef((props, ref) => {
           <Text style={styles.info}>******</Text>
         </View>
         <TouchableOpacity
-          onPress={() => props.navigation.navigate("Welcome")}
+          onPress={handleSignout}
           style={styles.signoutContainer}
         >
           <Text style={styles.signoutText}>Signout</Text>

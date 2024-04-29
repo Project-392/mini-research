@@ -35,7 +35,6 @@ const History: React.FC = ({ navigation, modalizeRef }: any) => {
         </View>
       </View>
       <QRChat />
-      <GearModal ref={modalizeRef} navigation={navigation} />
     </View>
   );
 };
@@ -57,7 +56,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: "#261E1A",
+    backgroundColor: "white",
   },
   header: {
     position: "relative",
@@ -67,7 +66,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 18,
     paddingBottom: 18,
-    backgroundColor: "#0C0C0C",
+    backgroundColor: "#D391F2",
   },
   headerTitle: {
     fontSize: 24,

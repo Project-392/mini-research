@@ -30,7 +30,6 @@ const Main: React.FC = ({ navigation, modalizeRef }: any) => {
                 width: 42,
                 height: 42,
                 borderRadius: 50,
-                borderWidth: 1,
               }}
             />
           ) : (

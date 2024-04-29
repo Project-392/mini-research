@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: "#261E1A",
+    backgroundColor: "white",
     width: "100%",
   },
   inputContainer: {

@@ -59,10 +59,6 @@ const Profile: React.FC = ({ modalizeRef }: any) => {
         ]; // Apply "before" styles when not editable
   };
 
-  const handleInputFocus = () => {
-    flatListRef.current?.scrollToEnd({ animated: true });
-  };
-
   return (
     <View style={{ backgroundColor: "#D391F2", flex: 1 }}>
       <View style={styles.header}>
@@ -102,7 +98,7 @@ const Profile: React.FC = ({ modalizeRef }: any) => {
           <View style={{ position: "relative", flex: 1 }}>
             <View style={styles.contentContainer}>
               <ProfilePicture />
-              <Text style={styles.nameTitle}>{name || "Fido"}</Text>
+              <Text style={styles.nameTitle}>{name || "Name"}</Text>
 
               {editable && (
                 <>
@@ -121,6 +117,7 @@ const Profile: React.FC = ({ modalizeRef }: any) => {
                         styles.input,
                         styles.headerText,
                         getInputStyle(editable),
+                        { color: "white" },
                       ]}
                       value={name}
                       onChangeText={setName}
@@ -135,6 +132,7 @@ const Profile: React.FC = ({ modalizeRef }: any) => {
                         styles.input,
                         styles.headerText,
                         getInputStyle(editable),
+                        { color: "white" },
                       ]}
                       value={age}
                       onChangeText={setAge}
@@ -149,6 +147,7 @@ const Profile: React.FC = ({ modalizeRef }: any) => {
                         styles.input,
                         styles.headerText,
                         getInputStyle(editable),
+                        { color: "white" },
                       ]}
                       value={breed}
                       onChangeText={setBreed}
@@ -221,7 +220,6 @@ const Profile: React.FC = ({ modalizeRef }: any) => {
                 editable={editable}
                 multiline
                 numberOfLines={4}
-                onFocus={handleInputFocus}
               />
             </View>
           </View>
@@ -289,6 +287,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     borderWidth: 1,
     borderColor: "white",
+    color: "white",
   },
   headerDesc: {
     fontSize: 18,
