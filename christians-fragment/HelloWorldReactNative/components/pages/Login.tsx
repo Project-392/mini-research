@@ -46,13 +46,13 @@ const Login: React.FC<Props> = ({ navigation }: any) => {
         value={email}
         onChangeText={setEmail}
         keyboardType="email-address"
-        placeholderTextColor={"white"}
+        placeholderTextColor={"gray"}
         autoCapitalize="none"
       />
       <TextInput
         style={styles.input}
         placeholder="Password"
-        placeholderTextColor={"white"}
+        placeholderTextColor={"gray"}
         value={password}
         onChangeText={setPassword}
         secureTextEntry={true}
@@ -65,10 +65,10 @@ const Login: React.FC<Props> = ({ navigation }: any) => {
         style={{ flexDirection: "row", marginTop: 12, gap: 4 }}
         onPress={() => navigation.navigate("Signup")}
       >
-        <Text style={{ color: "white" }}>Don't have an account?</Text>
+        <Text style={{ color: "black" }}>Don't have an account?</Text>
         <Text
           style={{
-            color: "white",
+            color: "black",
             textDecorationLine: "underline",
             fontWeight: "bold",
           }}
@@ -81,7 +81,7 @@ const Login: React.FC<Props> = ({ navigation }: any) => {
 };
 
 const styles = StyleSheet.create({
-  buttonText: { fontSize: 24, color: "black", fontWeight: "500" },
+  buttonText: { fontSize: 24, color: "white", fontWeight: "bold" },
   buttonPress: {
     marginTop: 16,
     borderWidth: 1,
@@ -92,20 +92,20 @@ const styles = StyleSheet.create({
     width: "100%",
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 12,
-    backgroundColor: "white",
+    paddingVertical: 16,
+    backgroundColor: "#8F33BB",
   },
   container: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
     padding: 20,
-    backgroundColor: "black",
+    backgroundColor: "white",
   },
   title: {
-    fontSize: 24,
+    fontSize: 32,
     marginBottom: 20,
-    color: "white",
+    color: "black",
     fontWeight: "bold",
   },
   input: {
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 5,
-    color: "white",
+    color: "black",
   },
   switchText: {
     marginVertical: 20,

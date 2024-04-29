@@ -15,6 +15,7 @@ type Props = {};
 const Signup: React.FC<Props> = ({ navigation }: any) => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [confirmPassword, setConfirmPassword] = useState<string>("");
 
   const isValidEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -33,6 +34,15 @@ const Signup: React.FC<Props> = ({ navigation }: any) => {
       );
       return;
     }
+
+    if (password !== confirmPassword) {
+      Alert.alert(
+        "Password Mismatch",
+        "The passwords do not match. Please try again."
+      );
+      return;
+    }
+
     // Navigate to Chat screen as a placeholder for successful signup
     navigation.navigate("Main");
   };
@@ -43,7 +53,7 @@ const Signup: React.FC<Props> = ({ navigation }: any) => {
       <TextInput
         style={styles.input}
         placeholder="Email"
-        placeholderTextColor={"white"}
+        placeholderTextColor={"gray"}
         value={email}
         onChangeText={setEmail}
         keyboardType="email-address"
@@ -52,9 +62,17 @@ const Signup: React.FC<Props> = ({ navigation }: any) => {
       <TextInput
         style={styles.input}
         placeholder="Password"
-        placeholderTextColor={"white"}
+        placeholderTextColor={"gray"}
         value={password}
         onChangeText={setPassword}
+        secureTextEntry={true}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Confirm Password"
+        placeholderTextColor={"gray"}
+        value={confirmPassword}
+        onChangeText={setConfirmPassword}
         secureTextEntry={true}
       />
       <TouchableOpacity style={styles.buttonPress} onPress={handleSignup}>
@@ -64,10 +82,10 @@ const Signup: React.FC<Props> = ({ navigation }: any) => {
         style={{ flexDirection: "row", marginTop: 12, gap: 4 }}
         onPress={() => navigation.navigate("Login")}
       >
-        <Text style={{ color: "white" }}>Already have an account?</Text>
+        <Text style={{ color: "black" }}>Already have an account?</Text>
         <Text
           style={{
-            color: "white",
+            color: "black",
             textDecorationLine: "underline",
             fontWeight: "bold",
           }}
@@ -80,31 +98,31 @@ const Signup: React.FC<Props> = ({ navigation }: any) => {
 };
 
 const styles = StyleSheet.create({
-  buttonText: { fontSize: 24, color: "black", fontWeight: "500" },
+  buttonText: { fontSize: 24, color: "white", fontWeight: "500" },
   buttonPress: {
     marginTop: 16,
     borderWidth: 1,
     borderRadius: 10,
-    borderColor: "white",
+    borderColor: "#8F33BB",
     color: "white",
     paddingHorizontal: 10,
     width: "100%",
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 12,
-    backgroundColor: "white",
+    paddingVertical: 16,
+    backgroundColor: "#8F33BB",
   },
   container: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
     padding: 20,
-    backgroundColor: "black",
+    backgroundColor: "white",
   },
   title: {
-    fontSize: 24,
+    fontSize: 32,
     marginBottom: 20,
-    color: "white",
+    color: "black",
     fontWeight: "bold",
   },
   input: {
@@ -114,7 +132,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 5,
-    color: "white",
+    color: "black",
   },
   switchText: {
     marginVertical: 20,

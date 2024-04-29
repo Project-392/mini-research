@@ -11,6 +11,7 @@ import {
   ListRenderItemInfo,
   TouchableOpacity,
   Animated,
+  Keyboard,
 } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import axios from "axios";
@@ -21,6 +22,7 @@ import { useCameraPermissions } from "expo-camera/next";
 import { BarcodeScanner } from "./BarcodeScanner";
 import UserContext from "../Context/UserContext";
 import { Message } from "../Context/types";
+import { Feather } from "@expo/vector-icons";
 
 // const dummyResponses: string[] = [
 //   "Hello there!",
@@ -45,23 +47,91 @@ const fetchMessage = async (text: string) => {
 };
 
 const Chat: React.FC = () => {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const { setScanHistory, messageHistory, setMessageHistory } =
+    useContext(UserContext);
   const [inputText, setInputText] = useState<string>("");
   const [isScannerVisible, setIsScannerVisible] = useState<boolean>(false);
-  const flatListRef = useRef<FlatList<Message>>(null);
   const [permission, requestPermission] = useCameraPermissions();
+  const [focusing, setFocusing] = useState<boolean>(false);
+  const [displayResponse, setDisplayResponse] = useState("");
+  const [completedTyping, setCompletedTyping] = useState(true);
+  const flatListRef = useRef<FlatList<Message>>(null);
+  const [lastMessage, setLastMessage] = useState<Message | null>(null);
+  const [newestOtherMessage, setNewestOtherMessage] = useState<Message | null>(
+    null
+  );
+  const [inputOpacity] = useState(new Animated.Value(1));
 
-  const { setScanHistory } = useContext(UserContext);
+  useEffect(() => {
+    // Animate the opacity when completedTyping changes
+    Animated.timing(inputOpacity, {
+      toValue: completedTyping ? 1 : 0.5,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  }, [completedTyping]);
 
-  // Define the animated value outside of the useEffect
-  const scaleAnim = useRef(new Animated.Value(1)).current;
+  const height = useHeaderHeight();
+  const handleOpenCamera = () => {
+    setIsScannerVisible(true);
+  };
+
+  useEffect(() => {
+    // Subscribe to keyboard show and hide events
+    const keyboardDidShowListener = Keyboard.addListener(
+      "keyboardDidShow",
+      scrollToBottom
+    );
+
+    // Cleanup the listeners on component unmount
+    return () => {
+      keyboardDidShowListener.remove();
+    };
+  }, []);
+
+  const scrollToBottom = () => {
+    flatListRef.current?.scrollToEnd({ animated: true });
+  };
+
+  const qrButtonScale = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    if (newestOtherMessage) {
+      animateText(newestOtherMessage.text);
+    }
+  }, [newestOtherMessage]);
+
   useEffect(() => {
     const timer = setTimeout(() => {
       flatListRef.current?.scrollToEnd({ animated: true });
     }, 100); // Adjust delay as needed
 
     return () => clearTimeout(timer);
-  }, [messages]);
+  }, [messageHistory]);
+
+  // New function to handle the input focus
+  const handleInputFocus = (focus: boolean) => {
+    setFocusing(true);
+    scrollToBottom();
+    Animated.timing(qrButtonScale, {
+      toValue: 0, // Scale up when focused
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  // New function to handle the input blur
+  const handleInputBlur = () => {
+    setFocusing(false);
+    Animated.timing(qrButtonScale, {
+      toValue: 1, // Scale down when not focused
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  // Define the animated value outside of the useEffect
+  const scaleAnim = useRef(new Animated.Value(1)).current;
 
   // Request camera permission if it has not been granted
   if (!permission?.granted) {
@@ -74,6 +144,30 @@ const Chat: React.FC = () => {
       </View>
     );
   }
+
+  // ... other code
+
+  const animateText = (message: string) => {
+    setCompletedTyping(false);
+    let i = 0;
+    const intervalId = setInterval(() => {
+      setDisplayResponse(message.slice(0, i));
+      i++;
+
+      if (i > message.length) {
+        clearInterval(intervalId);
+        setCompletedTyping(true);
+        // Once the animation completes, add the message to the main list
+        setMessageHistory((prevMessages) => [
+          ...prevMessages,
+          newestOtherMessage,
+        ]);
+        setNewestOtherMessage(null); // Clear the newest other message
+      }
+    }, 20);
+
+    return () => clearInterval(intervalId);
+  };
 
   // Function to start the pulsing animation
   const startPulsing = () => {
@@ -104,53 +198,46 @@ const Chat: React.FC = () => {
       text: inputText,
       sender: "user",
     };
-    setMessages((prevMessages) => [...prevMessages, newMessage]);
-
-    // Clear input field
+    setMessageHistory((prevMessages) => [...prevMessages, newMessage]);
     setInputText("");
 
     const replyText = await fetchMessage(inputText);
-
     const reply: Message = {
       id: Date.now(),
       text: replyText,
       sender: "other",
     };
 
-    // Add reply to messages
-    setMessages((prevMessages) => [...prevMessages, reply]);
+    // Instead of immediately adding to messages, set it as the newest other message
+    setNewestOtherMessage(reply);
 
-    // Scroll to the bottom
     flatListRef.current?.scrollToEnd({ animated: true });
     scaleAnim.stopAnimation();
 
-    // Trigger a spring animation upon message receipt
     Animated.spring(scaleAnim, {
-      toValue: 1, // Animate back to the original scale
-      friction: 3, // Make it a bit bouncy
+      toValue: 1,
+      friction: 3,
       useNativeDriver: true,
     }).start();
   };
 
-  const renderItem = ({ item }: ListRenderItemInfo<Message>) => (
-    <View
-      style={[
-        styles.messageContainer,
-        item.sender === "user" ? styles.userContainer : styles.otherContainer,
-      ]}
-    >
-      <Text
-        style={
-          item.sender === "user" ? styles.userMessage : styles.otherMessage
-        }
+  const renderItem = ({ item }: ListRenderItemInfo<Message>) => {
+    return (
+      <View
+        style={[
+          styles.messageContainer,
+          item.sender === "user" ? styles.userContainer : styles.otherContainer,
+        ]}
       >
-        {item.text}
-      </Text>
-    </View>
-  );
-  const height = useHeaderHeight();
-  const handleOpenCamera = () => {
-    setIsScannerVisible(true);
+        <Text
+          style={
+            item.sender === "user" ? styles.userMessage : styles.otherMessage
+          }
+        >
+          {item.text}
+        </Text>
+      </View>
+    );
   };
 
   const fetchProductDetails = async (barcode: string) => {
@@ -177,7 +264,7 @@ const Chat: React.FC = () => {
       sender: "other",
     };
 
-    setMessages((prevMessages) => [...prevMessages, scanMessage]);
+    setMessageHistory((prevMessages) => [...prevMessages, scanMessage]);
 
     // Fetch product details
     const productDetails = await fetchProductDetails(data);
@@ -192,7 +279,7 @@ const Chat: React.FC = () => {
         sender: "other",
       };
       allProducts += message;
-      setMessages((prevMessages) => [...prevMessages, detailMessage]);
+      setMessageHistory((prevMessages) => [...prevMessages, detailMessage]);
     });
 
     //pasting
@@ -204,7 +291,7 @@ const Chat: React.FC = () => {
     };
 
     // Add reply to messages
-    setMessages((prevMessages) => [...prevMessages, waitMessage]);
+    setMessageHistory((prevMessages) => [...prevMessages, waitMessage]);
 
     const toSend = `GPT give me a concise review of each product, the concerns and pros of each, and which I might like best to keep my cat healthy of the following: "${allProducts}"`;
 
@@ -219,7 +306,7 @@ const Chat: React.FC = () => {
     setScanHistory((prevScanHistory) => [...prevScanHistory, reply]);
 
     // Add reply to messages
-    setMessages((prevMessages) => [...prevMessages, reply]);
+    setMessageHistory((prevMessages) => [...prevMessages, reply]);
 
     // Scroll to the bottom
     flatListRef.current?.scrollToEnd({ animated: true });
@@ -265,40 +352,62 @@ const Chat: React.FC = () => {
           <View style={styles.listContainer}>
             <FlatList
               ref={flatListRef}
-              data={messages}
+              data={messageHistory}
               renderItem={renderItem}
               keyExtractor={(item) => item.id.toString()}
+              ListFooterComponent={() =>
+                newestOtherMessage && !completedTyping ? (
+                  <View
+                    style={[styles.messageContainer, styles.otherContainer]}
+                  >
+                    <Text style={styles.otherMessage}>{displayResponse}</Text>
+                  </View>
+                ) : null
+              }
             />
           </View>
           <KeyboardAvoidingView
             keyboardVerticalOffset={height + 140}
-            behavior="padding"
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
             style={styles.inputContainer}
           >
             <View style={styles.sendContainer}>
-              <TouchableOpacity
+              <Animated.View // Make this an Animated.View to animate its properties
                 style={{
                   height: 50,
                   justifyContent: "center",
                   alignItems: "center",
-                  marginRight: 8,
+                  marginRight: focusing ? 0 : 8,
+                  marginLeft: focusing ? -32 : 0,
+                  transform: [{ scale: qrButtonScale }], //I want this to scale to
                 }}
-                onPress={handleOpenCamera}
               >
-                <MaterialCommunityIcons
-                  name="qrcode-scan"
-                  size={32}
-                  color="white"
+                <TouchableOpacity onPress={handleOpenCamera}>
+                  <MaterialCommunityIcons
+                    name="qrcode-scan"
+                    size={38}
+                    color="#36004F"
+                  />
+                </TouchableOpacity>
+              </Animated.View>
+              <Animated.View
+                style={[{ opacity: inputOpacity, flex: 1, height: 60 }]}
+              >
+                <TextInput
+                  editable={completedTyping}
+                  style={[
+                    styles.input,
+                    !completedTyping ? { opacity: 0.5 } : {}, // Set opacity to 0.8 when typing is not completed
+                  ]}
+                  value={inputText}
+                  onChangeText={setInputText}
+                  placeholder="Type a message..."
+                  onFocus={handleInputFocus} // Attach the focus event here
+                  onBlur={handleInputBlur} // Attach the blur event here
                 />
-              </TouchableOpacity>
-              <TextInput
-                style={styles.input}
-                value={inputText}
-                onChangeText={setInputText}
-                placeholder="Type a message..."
-              />
+              </Animated.View>
               <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
-                <AntDesign name="rightcircle" size={35} color="#E9E9E9" />
+                <AntDesign name="right" size={32} color="#E9E9E9" />
               </TouchableOpacity>
             </View>
           </KeyboardAvoidingView>
@@ -309,6 +418,9 @@ const Chat: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
+  fakeText: {
+    backgroundColor: "red",
+  },
   statusContainer: {
     flexDirection: "row",
     marginRight: 10,
@@ -317,7 +429,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   statusText: {
-    color: "white",
+    color: "#CBCBCB",
     marginLeft: 6,
     fontSize: 10,
     marginTop: 3,
@@ -329,16 +441,16 @@ const styles = StyleSheet.create({
     borderRadius: 50,
   },
   headerName: {
-    color: "white",
+    color: "#714279",
     marginLeft: 10,
     fontSize: 20,
     fontWeight: "bold",
   },
   pfp: {
-    backgroundColor: "#261E1A",
+    backgroundColor: "#D391F2",
     width: 50,
     height: 50,
-    borderRadius: 20,
+    borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -353,18 +465,28 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     flexDirection: "row",
-    backgroundColor: "#0C0C0C",
-    height: 76,
+    backgroundColor: "white",
+    height: 68,
     borderRadius: 20,
     marginHorizontal: 10,
     marginTop: 12,
     marginBottom: 20,
+
+    shadowColor: "#000000", // Shadow color as hex
+    shadowOffset: { width: 2, height: 3 }, // X and Y offset of shadow
+    shadowOpacity: 0.25, // 25% opacity
+    shadowRadius: 4, // Blur radius
+    elevation: 1,
   },
   listContainer: { flex: 8, paddingHorizontal: 10 },
   sendButton: {
     justifyContent: "center",
     alignItems: "center",
     height: 50,
+    width: 46,
+    borderRadius: 8,
+    backgroundColor: "#BE75E1",
+    paddingLeft: 3,
   },
   sendContainer: {
     flexDirection: "row",
@@ -374,7 +496,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: "#261E1A",
+    backgroundColor: "white",
     width: "100%",
   },
   inputContainer: {
@@ -387,14 +509,14 @@ const styles = StyleSheet.create({
     flex: 1,
     marginRight: 8,
     paddingHorizontal: 10,
-    borderRadius: 20,
+    borderRadius: 8,
     height: 50,
-    backgroundColor: "white",
+    backgroundColor: "#E8E2E2",
     marginBottom: 10,
   },
   messageContainer: {
     padding: 10,
-    borderRadius: 20,
+    borderRadius: 8,
     marginVertical: 5,
     maxWidth: "80%", // Set a max-width for the message bubbles
   },

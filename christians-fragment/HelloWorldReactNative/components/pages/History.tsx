@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useContext, useRef } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -9,10 +9,9 @@ import { FontAwesome6 } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Entypo } from "@expo/vector-icons";
 import QRChat from "../QRChat";
+import UserContext from "../../Context/UserContext";
 
-const History: React.FC = ({ navigation }: any) => {
-  const modalizeRef = useRef<Modalize>(null);
-
+const History: React.FC = ({ navigation, modalizeRef }: any) => {
   const onOpenModal = () => {
     modalizeRef.current?.open();
   };
@@ -36,7 +35,6 @@ const History: React.FC = ({ navigation }: any) => {
         </View>
       </View>
       <QRChat />
-      <GearModal ref={modalizeRef} navigation={navigation} />
     </View>
   );
 };
@@ -58,7 +56,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: "#261E1A",
+    backgroundColor: "white",
   },
   header: {
     position: "relative",
@@ -68,7 +66,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 18,
     paddingBottom: 18,
-    backgroundColor: "#0C0C0C",
+    backgroundColor: "#D391F2",
   },
   headerTitle: {
     fontSize: 24,
