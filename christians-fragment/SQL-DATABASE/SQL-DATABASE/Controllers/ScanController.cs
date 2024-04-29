@@ -86,8 +86,8 @@ namespace SQL_DATABASE.Controllers
                 {
                     List<SellerOffer> amazonResults = await AmazonSearchResultASIN(productInfo.Asin);
                     productInfo.SellerSpecificOffers = amazonResults;
-                    Console.WriteLine("Amazon Results from ASIN: " + amazonResults);
-                }   
+/*                    Console.WriteLine("Amazon Results from ASIN: " + amazonResults);
+*/                }   
                 else if (!string.IsNullOrEmpty(productInfo.Name))
                 {
                     List<GeneralOffer> amazonResults = await AmazonSearchResult(productInfo.Name);
@@ -95,7 +95,7 @@ namespace SQL_DATABASE.Controllers
                 } 
                 else
                 {
-                    return NotFound("Product name not found in product info.");
+                    return NotFound("Product not found.");
                 }
 
                 return Ok(productInfo);
@@ -120,8 +120,8 @@ namespace SQL_DATABASE.Controllers
                 var productJson = JObject.Parse(productInfo);
                 Console.WriteLine("openpetfoodfacts:" + productJson);
                 details.Name = productJson["product"]["product_name"]?.ToString() ?? null;
-                if (details.Name == null)
-                    Console.WriteLine("Product name not found in openpetfoodfacts API.");
+               /* if (details.Name == null)
+                    Console.WriteLine("Product name not found in openpetfoodfacts API.");*/
             }
             // Fetch ASIN from another API
             string upcItemDBUrl = $"https://api.upcitemdb.com/prod/trial/lookup?upc={barcode}";
@@ -142,15 +142,16 @@ namespace SQL_DATABASE.Controllers
                     if (string.IsNullOrEmpty(details.Name))
                     {
                         details.Name = upcItemDBJson["items"][0]["title"]?.ToString();
-/*                        Console.WriteLine("upcItemDB Name: " + details.Name);
-*/                    }
+/*                      Console.WriteLine("upcItemDB Name: " + details.Name);
+*/                  }
                 }
                 else
                 {
 /*                    Console.WriteLine("No items found in the UPC database.");
 */                    details.WasFoundInUPCDatabase = false;
                 }
-            }
+            } 
+
             // Fetch ingredients from another API
             string bigProductDataUrl = $"https://big-product-data.p.rapidapi.com/gtin/{barcode}";
             client.DefaultRequestHeaders.Clear();
