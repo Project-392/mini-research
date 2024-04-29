@@ -49,7 +49,10 @@ namespace SQL_DATABASE.Controllers
             public List<GeneralOffer> GeneralOffers { get; set; }
             // when ASIN is available this is used 
             public List<SellerOffer> SellerSpecificOffers { get; set; }
-            public bool wasFound { get; set; }
+            // True if ASIN is found from upc database
+            public bool ASINWasFound { get; set; }
+            // True if no data of product in upc database
+            public bool WasFoundInUPCDatabase { get; set; }
         }
 
         public class BarcodeInput
@@ -133,18 +136,19 @@ namespace SQL_DATABASE.Controllers
                 if (upcItemDBJson["items"] != null && upcItemDBJson["items"].Any())
                 {
                     details.Asin = upcItemDBJson["items"][0]["asin"]?.ToString();
-                    details.wasFound = details.Asin != null;
+                    details.ASINWasFound = details.Asin != null;
+                    details.WasFoundInUPCDatabase = true;
 
                     if (string.IsNullOrEmpty(details.Name))
                     {
                         details.Name = upcItemDBJson["items"][0]["title"]?.ToString();
-                        Console.WriteLine("upcItemDB Name: " + details.Name);
-                    }
+/*                        Console.WriteLine("upcItemDB Name: " + details.Name);
+*/                    }
                 }
                 else
                 {
-                    Console.WriteLine("No items found in the UPC database.");
-                    details.wasFound = false;
+/*                    Console.WriteLine("No items found in the UPC database.");
+*/                    details.WasFoundInUPCDatabase = false;
                 }
             }
             // Fetch ingredients from another API
@@ -235,7 +239,6 @@ namespace SQL_DATABASE.Controllers
                         ReviewCount = (string)p["product_num_ratings"],
                         Link = (string)p["product_url"]
                     })
-                    .OrderByDescending(offer => offer.ReviewRating)
                     .Take(3)
                     .ToList();
 
