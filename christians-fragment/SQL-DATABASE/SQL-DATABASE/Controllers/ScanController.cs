@@ -11,7 +11,7 @@ namespace SQL_DATABASE.Controllers
     public class ScanController : ControllerBase
     {
         // api key
-        private const string APIKEY = "";
+        private const string APIKEY = "b179539d85msh59ac6e9c5f940bbp16a89fjsn3cd8c02c95cb";
         private static HttpClient client = new HttpClient();
 
         // Used when ASIN is not available
@@ -128,12 +128,23 @@ namespace SQL_DATABASE.Controllers
             {
                 string upcItemDBInfo = await upcItemDBResponse.Content.ReadAsStringAsync();
                 var upcItemDBJson = JObject.Parse(upcItemDBInfo);
-                details.Asin = upcItemDBJson["items"]?[0]?["asin"]?.ToString() ?? null;
-                details.wasFound = details.Asin != null;
-                if (string.IsNullOrEmpty(details.Name))
+
+                // Check if items array exists and has at least one item
+                if (upcItemDBJson["items"] != null && upcItemDBJson["items"].Any())
                 {
-                    details.Name = upcItemDBJson["items"]?[0]?["title"]?.ToString();
-                    Console.WriteLine("upcItemDB Name: " + details.Name);
+                    details.Asin = upcItemDBJson["items"][0]["asin"]?.ToString();
+                    details.wasFound = details.Asin != null;
+
+                    if (string.IsNullOrEmpty(details.Name))
+                    {
+                        details.Name = upcItemDBJson["items"][0]["title"]?.ToString();
+                        Console.WriteLine("upcItemDB Name: " + details.Name);
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("No items found in the UPC database.");
+                    details.wasFound = false;
                 }
             }
             // Fetch ingredients from another API
