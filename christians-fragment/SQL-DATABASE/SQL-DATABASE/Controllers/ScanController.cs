@@ -64,20 +64,20 @@ namespace SQL_DATABASE.Controllers
         public async Task<IActionResult> UploadBarcode([FromBody] BarcodeInput input)
         {
             if (string.IsNullOrEmpty(input.Barcode))
-                return BadRequest("No barcode provided.");
+                return Content("", "text/plain");
 
             // Get product info from openpetfoodfacts, upcitemdb, and big-product-data API
             ProductInfo productInfo = await FetchProductDetails(input.Barcode);
 
             if (productInfo == null)
-                return NotFound("Product information not found.");
+                return Content("", "text/plain");
 
-           /* Console.WriteLine("Product Name: " + productInfo.Name);
-            Console.WriteLine("Product Ingredients: " + productInfo.Ingredients);
-            Console.WriteLine("Product ASIN (AMAZON): " + productInfo.Asin);*/
+            /* Console.WriteLine("Product Name: " + productInfo.Name);
+             Console.WriteLine("Product Ingredients: " + productInfo.Ingredients);
+             Console.WriteLine("Product ASIN (AMAZON): " + productInfo.Asin);*/
 
             if (string.IsNullOrEmpty(productInfo.Name))
-                return NotFound("Product Name not found.");
+                return Content("", "text/plain");
 
             try
             {
@@ -95,14 +95,14 @@ namespace SQL_DATABASE.Controllers
                 } 
                 else
                 {
-                    return NotFound("Product not found.");
+                    return Content("", "text/plain");
                 }
 
                 return Ok(productInfo);
             }
             catch (Exception ex)
             {
-                return BadRequest($"An error occurred: {ex.Message}");
+                return Content("", "text/plain");
             }
         }
 
