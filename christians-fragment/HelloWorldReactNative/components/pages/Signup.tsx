@@ -1,5 +1,5 @@
 // Signup.tsx
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   View,
   Text,
@@ -9,11 +9,12 @@ import {
   Alert,
   TouchableOpacity,
 } from "react-native";
+import UserContext from "../../Context/UserContext";
 
 type Props = {};
 
 const Signup: React.FC<Props> = ({ navigation }: any) => {
-  const [email, setEmail] = useState<string>("");
+  const { email, setEmail } = useContext(UserContext);
   const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
 

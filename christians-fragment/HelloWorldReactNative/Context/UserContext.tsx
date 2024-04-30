@@ -18,6 +18,12 @@ scanHistory: string[]
  */
 
 export interface UserContextType {
+  email: string;
+  setEmail: Dispatch<SetStateAction<string>>;
+
+  hasIntro: boolean;
+  setHasIntro: Dispatch<SetStateAction<boolean>>;
+
   name: string;
   setName: Dispatch<SetStateAction<string>>;
 
@@ -44,9 +50,14 @@ export interface UserContextType {
 
   messageHistory: Message[];
   setMessageHistory: Dispatch<SetStateAction<Message[] | null>>;
+
+  userLogin: (email: string, password: string) => Promise<void>;
+  userSignup: (email: string, password: string) => Promise<void>;
 }
 
 const defaultState: UserContextType = {
+  hasIntro: "",
+  email: "",
   name: "",
   age: "",
   breed: "",
@@ -56,6 +67,8 @@ const defaultState: UserContextType = {
   profileImage: "",
   scanHistory: [],
   messageHistory: [],
+  setHasIntro: () => {},
+  setEmail: () => {},
   setName: () => {},
   setAge: () => {},
   setBreed: () => {},
@@ -65,6 +78,8 @@ const defaultState: UserContextType = {
   setMedicalHistory: () => {},
   setScanHistory: () => {},
   setMessageHistory: () => {},
+  userLogin: async () => {},
+  userSignup: async () => {},
 };
 
 const UserContext = React.createContext<UserContextType>(defaultState);
@@ -72,6 +87,8 @@ const UserContext = React.createContext<UserContextType>(defaultState);
 export const UserProvider: React.FC<PropsWithChildren<{}>> = ({
   children,
 }: any) => {
+  const [hasIntro, setHasIntro] = useState<boolean>(false);
+  const [email, setEmail] = useState<string>("");
   const [name, setName] = useState<string>("");
   const [age, setAge] = useState<string>("");
   const [breed, setBreed] = useState<string>("");
@@ -85,6 +102,8 @@ export const UserProvider: React.FC<PropsWithChildren<{}>> = ({
   return (
     <UserContext.Provider
       value={{
+        hasIntro,
+        email,
         name,
         age,
         breed,
@@ -94,6 +113,8 @@ export const UserProvider: React.FC<PropsWithChildren<{}>> = ({
         profileImage,
         scanHistory,
         messageHistory,
+        setHasIntro,
+        setEmail,
         setName,
         setAge,
         setBreed,
