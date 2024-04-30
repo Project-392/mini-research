@@ -11,7 +11,7 @@ namespace SQL_DATABASE.Controllers
     public class ScanController : ControllerBase
     {
         // api key
-        private const string APIKEY = "b179539d85msh59ac6e9c5f940bbp16a89fjsn3cd8c02c95cb";
+        private const string APIKEY = "";
         private static HttpClient client = new HttpClient();
 
         // Used when ASIN is not available
