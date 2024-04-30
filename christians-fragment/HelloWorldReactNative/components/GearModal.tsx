@@ -1,10 +1,12 @@
 // GearModal.js
 import { useNavigation } from "@react-navigation/native";
-import React, { forwardRef } from "react";
+import React, { forwardRef, useContext } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Modalize } from "react-native-modalize";
+import UserContext from "../Context/UserContext";
 
 const GearModal = forwardRef((props, ref) => {
+  const { email } = useContext(UserContext);
   const navigation = useNavigation();
   const handleSignout = () => {
     if (ref.current) {
@@ -24,7 +26,7 @@ const GearModal = forwardRef((props, ref) => {
       <View style={[styles.modalContent, { marginTop: 16 }]}>
         <View style={styles.infoContainer}>
           <Text style={styles.title}>Email:</Text>
-          <Text style={styles.info}>Bdidhodowmnf@gmail.com</Text>
+          <Text style={styles.info}>{email}</Text>
         </View>
         <View style={styles.infoContainer}>
           <Text style={styles.title}>Password:</Text>
