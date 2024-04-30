@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "HelloWorldReactNative",
-    "slug": "HelloWorldReactNative",
+    "slug": "katapp",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -10,7 +10,6 @@
       "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
-      
     },
     "plugins": [
       [
@@ -22,7 +21,6 @@
         }
       ]
     ],
-    
     "assetBundlePatterns": [
       "**/*"
     ],
@@ -33,10 +31,20 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "57a89293-cd6c-493f-9562-98426d8ff9b2"
+      }
+    },
+    "owner": "neezacoto"
   }
 }
