@@ -46,8 +46,29 @@ const fetchMessage = async (text: string) => {
   }
 };
 
+const fetchJson = async (text: string, name: string, age: string, breed: string, bio: string, diet: string, medicalHistory: string) => {
+  try {
+    const response = await axios.post(
+      "https://localhost:7277/CatJson",
+      {
+        // text: text, // This is the text you want to send to the backend
+        text: text,
+        name: name,
+        age: age,
+        breed: breed,
+        bio: bio,
+        diet: diet,
+        medicalHistory: medicalHistory
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 const Chat: React.FC = () => {
-  const { setScanHistory, messageHistory, setMessageHistory } =
+  const { setScanHistory, messageHistory, setMessageHistory, name, age, breed, bio, diet, medicalHistory, setName, setAge, setBreed, setBio, setDiet, setMedicalHistory } =
     useContext(UserContext);
   const [inputText, setInputText] = useState<string>("");
   const [isScannerVisible, setIsScannerVisible] = useState<boolean>(false);
@@ -200,7 +221,27 @@ const Chat: React.FC = () => {
     };
     setMessageHistory((prevMessages) => [...prevMessages, newMessage]);
     setInputText("");
-
+    
+    const json = await fetchJson(inputText, name, age, breed, bio, diet, medicalHistory);
+    console.log(json);
+    if (json.Name !== "") {
+      setName(json.Name);
+    }
+    if (json.Age !== "") {
+      setAge(json.Age);
+    }
+    if (json.Breed !== "") {
+      setBreed(json.Breed);
+    }
+    if (json.Bio !== "") {
+      setBio(json.Bio);
+    }
+    if (json.Diet !== "") { 
+      setDiet(json.Diet);
+    }
+    if (json.MedicalHistory !== "") {
+      setMedicalHistory(json.MedicalHistory);
+    }
     const replyText = await fetchMessage(inputText);
     const reply: Message = {
       id: Date.now(),
@@ -249,7 +290,7 @@ const Chat: React.FC = () => {
       return response.data; // Returns the API response with product details
     } catch (error) {
       console.error("Error fetching product details:", error);
-      return `Error fetching product details: ${error.message}`;
+      return `Error fetching product details: ${error}`;
     }
   };
 
