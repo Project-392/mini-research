@@ -57,16 +57,19 @@ const fetchJson = async (
   medicalHistory: string
 ) => {
   try {
-    const response = await axios.post("https://localhost:7277/CatJson", {
-      // text: text, // This is the text you want to send to the backend
-      text: text,
-      name: name,
-      age: age,
-      breed: breed,
-      bio: bio,
-      diet: diet,
-      medicalHistory: medicalHistory,
-    });
+    const response = await axios.post(
+      "https://mycatgpt392.azurewebsites.net/CatJson",
+      {
+        // text: text, // This is the text you want to send to the backend
+        text: text,
+        name: name,
+        age: age,
+        breed: breed,
+        bio: bio,
+        diet: diet,
+        medicalHistory: medicalHistory,
+      }
+    );
     return response.data;
   } catch (error) {
     console.error(error);
@@ -174,7 +177,7 @@ const Chat: React.FC = () => {
   };
 
   useEffect(() => {
-    if (!hasIntro) return;
+    if (hasIntro) return;
     setHasIntro(true);
     startPulsing();
 
@@ -411,6 +414,18 @@ const Chat: React.FC = () => {
 
     allProducts = JSON.stringify(productDetails, null, 2);
 
+    if (!productDetails.wasFound) {
+      const waitMessage: Message = {
+        id: Date.now(), // Ensure unique IDs for each message
+        text: "Sorry, I wasn't able to find anything with that Barcode.",
+        sender: "other",
+      };
+
+      // Add reply to messages
+      setMessageHistory((prevMessages) => [...prevMessages, waitMessage]);
+
+      return;
+    }
     const waitMessage: Message = {
       id: Date.now(), // Ensure unique IDs for each message
       text: "Writing a review:",
@@ -435,15 +450,17 @@ const Chat: React.FC = () => {
     // Add reply to messages
     setMessageHistory((prevMessages) => [...prevMessages, reply]);
 
-    const link: string = productDetails.sellerSpecificOffers[0].sellerLink;
-    const linkText: Message = {
-      id: Date.now(),
-      text: `I found a seller for you:\n${link}`,
-      sender: "other",
-      link: link,
-    };
+    if (productDetails.sellerSpecificOffers[0].sellerLink) {
+      const link: string = productDetails.sellerSpecificOffers[0].sellerLink;
+      const linkText: Message = {
+        id: Date.now(),
+        text: `I found a seller for you on Amazon:\n${link}`,
+        sender: "other",
+        link: link,
+      };
 
-    setMessageHistory((prevMessages) => [...prevMessages, linkText]);
+      setMessageHistory((prevMessages) => [...prevMessages, linkText]);
+    }
 
     // Scroll to the bottom
     flatListRef.current?.scrollToEnd({ animated: true });
