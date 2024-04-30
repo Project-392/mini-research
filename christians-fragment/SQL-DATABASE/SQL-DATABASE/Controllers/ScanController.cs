@@ -11,7 +11,7 @@ namespace SQL_DATABASE.Controllers
     public class ScanController : ControllerBase
     {
         // api key
-        private const string APIKEY = "";
+        private const string APIKEY = "b179539d85msh59ac6e9c5f940bbp16a89fjsn3cd8c02c95cb";
         private static HttpClient client = new HttpClient();
 
         // Used when ASIN is not available
@@ -49,7 +49,10 @@ namespace SQL_DATABASE.Controllers
             public List<GeneralOffer> GeneralOffers { get; set; }
             // when ASIN is available this is used 
             public List<SellerOffer> SellerSpecificOffers { get; set; }
-            public bool wasFound { get; set; }
+            // True if ASIN is found from upc database
+            public bool ASINWasFound { get; set; }
+            // True if no data of product in upc database
+            public bool WasFoundInUPCDatabase { get; set; }
         }
 
         public class BarcodeInput
@@ -61,20 +64,20 @@ namespace SQL_DATABASE.Controllers
         public async Task<IActionResult> UploadBarcode([FromBody] BarcodeInput input)
         {
             if (string.IsNullOrEmpty(input.Barcode))
-                return BadRequest("No barcode provided.");
+                return Content("", "text/plain");
 
             // Get product info from openpetfoodfacts, upcitemdb, and big-product-data API
             ProductInfo productInfo = await FetchProductDetails(input.Barcode);
 
             if (productInfo == null)
-                return NotFound("Product information not found.");
+                return Content("", "text/plain");
 
-           /* Console.WriteLine("Product Name: " + productInfo.Name);
-            Console.WriteLine("Product Ingredients: " + productInfo.Ingredients);
-            Console.WriteLine("Product ASIN (AMAZON): " + productInfo.Asin);*/
+            /* Console.WriteLine("Product Name: " + productInfo.Name);
+             Console.WriteLine("Product Ingredients: " + productInfo.Ingredients);
+             Console.WriteLine("Product ASIN (AMAZON): " + productInfo.Asin);*/
 
             if (string.IsNullOrEmpty(productInfo.Name))
-                return NotFound("Product Name not found.");
+                return Content("", "text/plain");
 
             try
             {
@@ -83,8 +86,8 @@ namespace SQL_DATABASE.Controllers
                 {
                     List<SellerOffer> amazonResults = await AmazonSearchResultASIN(productInfo.Asin);
                     productInfo.SellerSpecificOffers = amazonResults;
-                    Console.WriteLine("Amazon Results from ASIN: " + amazonResults);
-                }   
+/*                    Console.WriteLine("Amazon Results from ASIN: " + amazonResults);
+*/                }   
                 else if (!string.IsNullOrEmpty(productInfo.Name))
                 {
                     List<GeneralOffer> amazonResults = await AmazonSearchResult(productInfo.Name);
@@ -92,14 +95,14 @@ namespace SQL_DATABASE.Controllers
                 } 
                 else
                 {
-                    return NotFound("Product name not found in product info.");
+                    return Content("", "text/plain");
                 }
 
                 return Ok(productInfo);
             }
             catch (Exception ex)
             {
-                return BadRequest($"An error occurred: {ex.Message}");
+                return Content("", "text/plain");
             }
         }
 
@@ -117,8 +120,8 @@ namespace SQL_DATABASE.Controllers
                 var productJson = JObject.Parse(productInfo);
                 Console.WriteLine("openpetfoodfacts:" + productJson);
                 details.Name = productJson["product"]["product_name"]?.ToString() ?? null;
-                if (details.Name == null)
-                    Console.WriteLine("Product name not found in openpetfoodfacts API.");
+               /* if (details.Name == null)
+                    Console.WriteLine("Product name not found in openpetfoodfacts API.");*/
             }
             // Fetch ASIN from another API
             string upcItemDBUrl = $"https://api.upcitemdb.com/prod/trial/lookup?upc={barcode}";
@@ -128,14 +131,27 @@ namespace SQL_DATABASE.Controllers
             {
                 string upcItemDBInfo = await upcItemDBResponse.Content.ReadAsStringAsync();
                 var upcItemDBJson = JObject.Parse(upcItemDBInfo);
-                details.Asin = upcItemDBJson["items"]?[0]?["asin"]?.ToString() ?? null;
-                details.wasFound = details.Asin != null;
-                if (string.IsNullOrEmpty(details.Name))
+
+                // Check if items array exists and has at least one item
+                if (upcItemDBJson["items"] != null && upcItemDBJson["items"].Any())
                 {
-                    details.Name = upcItemDBJson["items"]?[0]?["title"]?.ToString();
-                    Console.WriteLine("upcItemDB Name: " + details.Name);
+                    details.Asin = upcItemDBJson["items"][0]["asin"]?.ToString();
+                    details.ASINWasFound = details.Asin != null;
+                    details.WasFoundInUPCDatabase = true;
+
+                    if (string.IsNullOrEmpty(details.Name))
+                    {
+                        details.Name = upcItemDBJson["items"][0]["title"]?.ToString();
+/*                      Console.WriteLine("upcItemDB Name: " + details.Name);
+*/                  }
                 }
-            }
+                else
+                {
+/*                    Console.WriteLine("No items found in the UPC database.");
+*/                    details.WasFoundInUPCDatabase = false;
+                }
+            } 
+
             // Fetch ingredients from another API
             string bigProductDataUrl = $"https://big-product-data.p.rapidapi.com/gtin/{barcode}";
             client.DefaultRequestHeaders.Clear();
@@ -224,7 +240,6 @@ namespace SQL_DATABASE.Controllers
                         ReviewCount = (string)p["product_num_ratings"],
                         Link = (string)p["product_url"]
                     })
-                    .OrderByDescending(offer => offer.ReviewRating)
                     .Take(3)
                     .ToList();
 
