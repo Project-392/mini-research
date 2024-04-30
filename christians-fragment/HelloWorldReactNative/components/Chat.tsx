@@ -12,6 +12,7 @@ import {
   TouchableOpacity,
   Animated,
   Keyboard,
+  Linking,
 } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import axios from "axios";
@@ -21,7 +22,7 @@ import { useHeaderHeight } from "@react-navigation/elements";
 import { useCameraPermissions } from "expo-camera/next";
 import { BarcodeScanner } from "./BarcodeScanner";
 import UserContext from "../Context/UserContext";
-import { Message } from "../Context/types";
+import { Message, Product } from "../Context/types";
 import { Feather } from "@expo/vector-icons";
 
 // const dummyResponses: string[] = [
@@ -263,22 +264,53 @@ const Chat: React.FC = () => {
   };
 
   const renderItem = ({ item }: ListRenderItemInfo<Message>) => {
-    return (
-      <View
-        style={[
-          styles.messageContainer,
-          item.sender === "user" ? styles.userContainer : styles.otherContainer,
-        ]}
-      >
-        <Text
-          style={
-            item.sender === "user" ? styles.userMessage : styles.otherMessage
-          }
+    const messageStyle =
+      item.sender === "user" ? styles.userMessage : styles.otherMessage;
+
+    // Function to handle opening a URL
+    const handlePressLink = async (url: string) => {
+      // Check if the URL can be opened
+      const supported = await Linking.canOpenURL(url);
+      if (supported) {
+        // Open the URL if it's supported
+        await Linking.openURL(url);
+      } else {
+        console.error("Failed to open URL: " + url);
+      }
+    };
+
+    // Determine if the message should be clickable based on isLink
+    if (item.link) {
+      return (
+        <View
+          style={[
+            styles.messageContainer,
+            item.sender === "user"
+              ? styles.userContainer
+              : styles.otherContainer,
+          ]}
         >
-          {item.text}
-        </Text>
-      </View>
-    );
+          <TouchableOpacity onPress={() => handlePressLink(item.link)}>
+            <Text style={[messageStyle, { color: "#5080bf" }]}>
+              {item.text}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      );
+    } else {
+      return (
+        <View
+          style={[
+            styles.messageContainer,
+            item.sender === "user"
+              ? styles.userContainer
+              : styles.otherContainer,
+          ]}
+        >
+          <Text style={messageStyle}>{item.text}</Text>
+        </View>
+      );
+    }
   };
 
   const fetchProductDetails = async (barcode: string) => {
@@ -308,22 +340,24 @@ const Chat: React.FC = () => {
     setMessageHistory((prevMessages) => [...prevMessages, scanMessage]);
 
     // Fetch product details
-    const productDetails = await fetchProductDetails(data);
+    const productDetails: Product = await fetchProductDetails(data);
 
     // Assuming productDetails is an array of products with their details
     let allProducts = "";
-    productDetails.forEach((product: any, index: any) => {
-      const message = `Review Rating: ${product.reviewRating}\nReview Count: ${product.reviewCount}\nPrice: ${product.price}\nLink: ${product.link}\nTitle: ${product.title}`;
-      const detailMessage: Message = {
-        id: Date.now() + index + 1, // Ensure unique IDs for each message
-        text: message,
-        sender: "other",
-      };
-      allProducts += message;
-      setMessageHistory((prevMessages) => [...prevMessages, detailMessage]);
-    });
+    // productDetails.forEach((product: any, index: any) => {
+    //   const message = `Review Rating: ${product.reviewRating}\nReview Count: ${product.reviewCount}\nPrice: ${product.price}\nLink: ${product.link}\nTitle: ${product.title}`;
+    //   const detailMessage: Message = {
+    //     id: Date.now() + index + 1, // Ensure unique IDs for each message
+    //     text: message,
+    //     sender: "other",
+    //   };
+    //   allProducts += message;
+    //   setMessageHistory((prevMessages) => [...prevMessages, detailMessage]);
+    // });
 
     //pasting
+
+    allProducts = JSON.stringify(productDetails, null, 2);
 
     const waitMessage: Message = {
       id: Date.now(), // Ensure unique IDs for each message
@@ -334,7 +368,7 @@ const Chat: React.FC = () => {
     // Add reply to messages
     setMessageHistory((prevMessages) => [...prevMessages, waitMessage]);
 
-    const toSend = `GPT give me a concise review of each product, the concerns and pros of each, and which I might like best to keep my cat healthy of the following: "${allProducts}"`;
+    const toSend = `GPT give me a concise review of this product, list out the product details before hand, then review it, give the concerns, pros and cons, and which I might like best to keep my cat healthy of the following: "${allProducts}"`;
 
     const replyText = await fetchMessage(toSend);
 
@@ -348,6 +382,16 @@ const Chat: React.FC = () => {
 
     // Add reply to messages
     setMessageHistory((prevMessages) => [...prevMessages, reply]);
+
+    const link: string = productDetails.sellerSpecificOffers[0].sellerLink;
+    const linkText: Message = {
+      id: Date.now(),
+      text: link,
+      sender: "other",
+      link: link,
+    };
+
+    setMessageHistory((prevMessages) => [...prevMessages, linkText]);
 
     // Scroll to the bottom
     flatListRef.current?.scrollToEnd({ animated: true });
