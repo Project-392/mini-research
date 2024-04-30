@@ -38,7 +38,7 @@ const fetchMessage = async (text: string) => {
     const response = await axios.post(
       "https://mycatgpt392.azurewebsites.net/HelloWorld",
       {
-        text: text, // This is the text you want to send to the backend
+        text: `if the text that proceeds this is not talking about cats or their cat's health, please redirect the conversation to that of such, you are a cat AI venetian assistant: ${text}`, // This is the text you want to send to the backend
       }
     );
     return response.data;
@@ -47,21 +47,26 @@ const fetchMessage = async (text: string) => {
   }
 };
 
-const fetchJson = async (text: string, name: string, age: string, breed: string, bio: string, diet: string, medicalHistory: string) => {
+const fetchJson = async (
+  text: string,
+  name: string,
+  age: string,
+  breed: string,
+  bio: string,
+  diet: string,
+  medicalHistory: string
+) => {
   try {
-    const response = await axios.post(
-      "https://localhost:7277/CatJson",
-      {
-        // text: text, // This is the text you want to send to the backend
-        text: text,
-        name: name,
-        age: age,
-        breed: breed,
-        bio: bio,
-        diet: diet,
-        medicalHistory: medicalHistory
-      }
-    );
+    const response = await axios.post("https://localhost:7277/CatJson", {
+      // text: text, // This is the text you want to send to the backend
+      text: text,
+      name: name,
+      age: age,
+      breed: breed,
+      bio: bio,
+      diet: diet,
+      medicalHistory: medicalHistory,
+    });
     return response.data;
   } catch (error) {
     console.error(error);
@@ -69,8 +74,25 @@ const fetchJson = async (text: string, name: string, age: string, breed: string,
 };
 
 const Chat: React.FC = () => {
-  const { setScanHistory, messageHistory, setMessageHistory, name, age, breed, bio, diet, medicalHistory, setName, setAge, setBreed, setBio, setDiet, setMedicalHistory } =
-    useContext(UserContext);
+  const {
+    hasIntro,
+    setHasIntro,
+    setScanHistory,
+    messageHistory,
+    setMessageHistory,
+    name,
+    age,
+    breed,
+    bio,
+    diet,
+    medicalHistory,
+    setName,
+    setAge,
+    setBreed,
+    setBio,
+    setDiet,
+    setMedicalHistory,
+  } = useContext(UserContext);
   const [inputText, setInputText] = useState<string>("");
   const [isScannerVisible, setIsScannerVisible] = useState<boolean>(false);
   const [permission, requestPermission] = useCameraPermissions();
@@ -83,7 +105,97 @@ const Chat: React.FC = () => {
     null
   );
   const [inputOpacity] = useState(new Animated.Value(1));
+  // Define the animated value outside of the useEffect
+  const scaleAnim = useRef(new Animated.Value(1)).current;
 
+  // New function to handle the input focus
+  const handleInputFocus = (focus: boolean) => {
+    setFocusing(true);
+    scrollToBottom();
+    Animated.timing(qrButtonScale, {
+      toValue: 0, // Scale up when focused
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  // New function to handle the input blur
+  const handleInputBlur = () => {
+    setFocusing(false);
+    Animated.timing(qrButtonScale, {
+      toValue: 1, // Scale down when not focused
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const animateText = (message: string) => {
+    setCompletedTyping(false);
+    let i = 0;
+    const intervalId = setInterval(() => {
+      setDisplayResponse(message.slice(0, i));
+      i++;
+
+      if (i > message.length) {
+        clearInterval(intervalId);
+        setCompletedTyping(true);
+        // Once the animation completes, add the message to the main list
+        setMessageHistory((prevMessages) => [
+          ...prevMessages,
+          newestOtherMessage,
+        ]);
+        setNewestOtherMessage(null); // Clear the newest other message
+      }
+    }, 20);
+
+    return () => clearInterval(intervalId);
+  };
+
+  // Function to start the pulsing animation
+  const startPulsing = () => {
+    scaleAnim.setValue(1); // Reset the scale to start the animation from beginning
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(scaleAnim, {
+          toValue: 1.5,
+          duration: 500,
+          useNativeDriver: true,
+        }),
+        Animated.timing(scaleAnim, {
+          toValue: 1,
+          duration: 500,
+          useNativeDriver: true,
+        }),
+      ]),
+      {
+        iterations: -1, // Loop indefinitely
+      }
+    ).start();
+  };
+
+  useEffect(() => {
+    if (!hasIntro) return;
+    setHasIntro(true);
+    startPulsing();
+
+    const reply: Message = {
+      id: Date.now(),
+      text: "Hi I'm A.V.A your Ai Veterinarian Assistant!\nI'd love to hear more about your cat, what's their name and overall history?",
+      sender: "other",
+    };
+
+    // Instead of immediately adding to messages, set it as the newest other message
+    setNewestOtherMessage(reply);
+
+    flatListRef.current?.scrollToEnd({ animated: true });
+    scaleAnim.stopAnimation();
+
+    Animated.spring(scaleAnim, {
+      toValue: 1,
+      friction: 3,
+      useNativeDriver: true,
+    }).start();
+  }, []);
   useEffect(() => {
     // Animate the opacity when completedTyping changes
     Animated.timing(inputOpacity, {
@@ -131,30 +243,6 @@ const Chat: React.FC = () => {
     return () => clearTimeout(timer);
   }, [messageHistory]);
 
-  // New function to handle the input focus
-  const handleInputFocus = (focus: boolean) => {
-    setFocusing(true);
-    scrollToBottom();
-    Animated.timing(qrButtonScale, {
-      toValue: 0, // Scale up when focused
-      duration: 300,
-      useNativeDriver: true,
-    }).start();
-  };
-
-  // New function to handle the input blur
-  const handleInputBlur = () => {
-    setFocusing(false);
-    Animated.timing(qrButtonScale, {
-      toValue: 1, // Scale down when not focused
-      duration: 300,
-      useNativeDriver: true,
-    }).start();
-  };
-
-  // Define the animated value outside of the useEffect
-  const scaleAnim = useRef(new Animated.Value(1)).current;
-
   // Request camera permission if it has not been granted
   if (!permission?.granted) {
     return (
@@ -169,50 +257,6 @@ const Chat: React.FC = () => {
 
   // ... other code
 
-  const animateText = (message: string) => {
-    setCompletedTyping(false);
-    let i = 0;
-    const intervalId = setInterval(() => {
-      setDisplayResponse(message.slice(0, i));
-      i++;
-
-      if (i > message.length) {
-        clearInterval(intervalId);
-        setCompletedTyping(true);
-        // Once the animation completes, add the message to the main list
-        setMessageHistory((prevMessages) => [
-          ...prevMessages,
-          newestOtherMessage,
-        ]);
-        setNewestOtherMessage(null); // Clear the newest other message
-      }
-    }, 20);
-
-    return () => clearInterval(intervalId);
-  };
-
-  // Function to start the pulsing animation
-  const startPulsing = () => {
-    scaleAnim.setValue(1); // Reset the scale to start the animation from beginning
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(scaleAnim, {
-          toValue: 1.5,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-        Animated.timing(scaleAnim, {
-          toValue: 1,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-      ]),
-      {
-        iterations: -1, // Loop indefinitely
-      }
-    ).start();
-  };
-
   const sendMessage = async (): Promise<void> => {
     startPulsing();
     const newMessage: Message = {
@@ -222,8 +266,16 @@ const Chat: React.FC = () => {
     };
     setMessageHistory((prevMessages) => [...prevMessages, newMessage]);
     setInputText("");
-    
-    const json = await fetchJson(inputText, name, age, breed, bio, diet, medicalHistory);
+
+    const json = await fetchJson(
+      inputText,
+      name,
+      age,
+      breed,
+      bio,
+      diet,
+      medicalHistory
+    );
     console.log(json);
     if (json.Name !== "") {
       setName(json.Name);
@@ -237,7 +289,7 @@ const Chat: React.FC = () => {
     if (json.Bio !== "") {
       setBio(json.Bio);
     }
-    if (json.Diet !== "") { 
+    if (json.Diet !== "") {
       setDiet(json.Diet);
     }
     if (json.MedicalHistory !== "") {
@@ -386,7 +438,7 @@ const Chat: React.FC = () => {
     const link: string = productDetails.sellerSpecificOffers[0].sellerLink;
     const linkText: Message = {
       id: Date.now(),
-      text: link,
+      text: `I found a seller for you:\n${link}`,
       sender: "other",
       link: link,
     };

@@ -1,5 +1,5 @@
 // Login.tsx
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   View,
   Text,
@@ -10,11 +10,12 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import UserContext from "../../Context/UserContext";
 
 type Props = {};
 
 const Login: React.FC<Props> = ({ navigation }: any) => {
-  const [email, setEmail] = useState<string>("");
+  const { email, setEmail } = useContext(UserContext);
   const [password, setPassword] = useState<string>("");
 
   const isValidEmail = (email: string): boolean => {
