@@ -2,7 +2,7 @@
 using OpenAI_API;
 using OpenAI_API.Models;
 using System;
-using System.Collections.Generic;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace SQL_DATABASE.Controllers
@@ -11,43 +11,29 @@ namespace SQL_DATABASE.Controllers
     [Route("[controller]")]
     public class HelloWorldController : ControllerBase
     {
-        private static readonly List<string> Responses = new List<string>
-        {
-           "The average cat can jump up to six times its body length in one leap.",
-"Cats can rotate their ears 180 degrees.",
-"A group of cats is called a clowder.",
-"Cats have a specialized collarbone that allows them to always land on their feet when they fall.",
-"Cats can make over 100 different sounds."
-        };
-
-        private static readonly Random Random = new Random();
-
         public class InputModel
         {
-            public string Text { get; set; }
+            public string Text { get; set; } 
         }
 
         [HttpPost]
-        public async Task<ActionResult<string>> Post(InputModel input)
+        public async Task<ActionResult<string>> PostText(InputModel input)
         {
-            // public OpenAI_API.Chat.Conversation chat;
-
             try
             {
-                const string APIKEY = "";
+                const string APIKEY = ""; // Remember to manage your API keys securely
                 var api = new OpenAI_API.OpenAIAPI(APIKEY);
-                var chat = api.Chat.CreateConversation();
+                var chat = api.Chat.CreateConversation(); // Assuming this is a valid method from a custom library
                 chat.Model = Model.ChatGPTTurbo;
-                chat.AppendUserInput($"{input.Text}");
-                string response = await chat.GetResponseFromChatbotAsync();
-                return response;
+                chat.AppendUserInput(input.Text);
+                var response = await chat.GetResponseFromChatbotAsync(); // Assuming this is a valid method
+                return Ok(response); // Using Ok to explicitly return HTTP 200 status code
             }
-            catch(Exception ex) 
+            catch (Exception ex)
             {
-                return ($"Error initializing conversation: {ex.Message}");
+                return BadRequest($"Error initializing conversation: {ex.Message}");
             }
         }
+
     }
 }
-
-
