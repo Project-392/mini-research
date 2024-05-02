@@ -38,7 +38,7 @@ const fetchMessage = async (text: string) => {
     const response = await axios.post(
       "https://mycatgpt392.azurewebsites.net/HelloWorld",
       {
-        text: `if the text that proceeds this is not talking about cats or their cat's health, please redirect the conversation to that of such, you are a cat AI venetian assistant: ${text}`, // This is the text you want to send to the backend
+        text: `you are roleplaying as an AI that can change the users cat information and give advice, if the text that proceeds this is not talking about cats or their cat's health or asking to change their info, please redirect the conversation to that of such, you are a cat AI venetian assistant, agree with their request to change info: ${text}`, // This is the text you want to send to the backend
       }
     );
     return response.data;
@@ -177,8 +177,9 @@ const Chat: React.FC = () => {
   };
 
   useEffect(() => {
+    console.log(hasIntro);
     if (hasIntro) return;
-    setHasIntro(true);
+
     startPulsing();
 
     const reply: Message = {
@@ -198,6 +199,8 @@ const Chat: React.FC = () => {
       friction: 3,
       useNativeDriver: true,
     }).start();
+
+    setHasIntro(true);
   }, []);
   useEffect(() => {
     // Animate the opacity when completedTyping changes
@@ -261,6 +264,7 @@ const Chat: React.FC = () => {
   // ... other code
 
   const sendMessage = async (): Promise<void> => {
+    if (!completedTyping) return;
     startPulsing();
     const newMessage: Message = {
       id: Date.now(),
@@ -414,18 +418,6 @@ const Chat: React.FC = () => {
 
     allProducts = JSON.stringify(productDetails, null, 2);
 
-    if (!productDetails.wasFound) {
-      const waitMessage: Message = {
-        id: Date.now(), // Ensure unique IDs for each message
-        text: "Sorry, I wasn't able to find anything with that Barcode.",
-        sender: "other",
-      };
-
-      // Add reply to messages
-      setMessageHistory((prevMessages) => [...prevMessages, waitMessage]);
-
-      return;
-    }
     const waitMessage: Message = {
       id: Date.now(), // Ensure unique IDs for each message
       text: "Writing a review:",
@@ -450,8 +442,30 @@ const Chat: React.FC = () => {
     // Add reply to messages
     setMessageHistory((prevMessages) => [...prevMessages, reply]);
 
-    if (productDetails.sellerSpecificOffers[0].sellerLink) {
+    if (productDetails.sellerSpecificOffers[0]?.sellerLink) {
       const link: string = productDetails.sellerSpecificOffers[0].sellerLink;
+      const linkText: Message = {
+        id: Date.now(),
+        text: `I found a seller for you on Amazon:\n${link}`,
+        sender: "other",
+        link: link,
+      };
+
+      setMessageHistory((prevMessages) => [...prevMessages, linkText]);
+    }
+    if (productDetails.sellerSpecificOffers[1]?.sellerLink) {
+      const link: string = productDetails.sellerSpecificOffers[1].sellerLink;
+      const linkText: Message = {
+        id: Date.now(),
+        text: `I found a seller for you on Amazon:\n${link}`,
+        sender: "other",
+        link: link,
+      };
+
+      setMessageHistory((prevMessages) => [...prevMessages, linkText]);
+    }
+    if (productDetails.sellerSpecificOffers[2]?.sellerLink) {
+      const link: string = productDetails.sellerSpecificOffers[2].sellerLink;
       const linkText: Message = {
         id: Date.now(),
         text: `I found a seller for you on Amazon:\n${link}`,
@@ -560,7 +574,13 @@ const Chat: React.FC = () => {
                   onBlur={handleInputBlur} // Attach the blur event here
                 />
               </Animated.View>
-              <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
+              <TouchableOpacity
+                style={[
+                  styles.sendButton,
+                  !completedTyping ? { opacity: 0.5 } : {},
+                ]}
+                onPress={sendMessage}
+              >
                 <AntDesign name="right" size={32} color="#E9E9E9" />
               </TouchableOpacity>
             </View>

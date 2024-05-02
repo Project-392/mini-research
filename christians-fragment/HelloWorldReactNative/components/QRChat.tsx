@@ -34,9 +34,12 @@ type Message = {
 
 const fetchMessage = async (text: string) => {
   try {
-    const response = await axios.post("https://localhost:7277/HelloWorld", {
-      text: text, // This is the text you want to send to the backend
-    });
+    const response = await axios.post(
+      "https://mycatgpt392.azurewebsites.net/HelloWorld",
+      {
+        text: text, // This is the text you want to send to the backend
+      }
+    );
     return response.data;
   } catch (error) {
     console.error(error);

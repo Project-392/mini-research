@@ -56,7 +56,7 @@ export interface UserContextType {
 }
 
 const defaultState: UserContextType = {
-  hasIntro: "",
+  hasIntro: false,
   email: "",
   name: "",
   age: "",

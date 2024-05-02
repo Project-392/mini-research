@@ -45,6 +45,12 @@
         "projectId": "57a89293-cd6c-493f-9562-98426d8ff9b2"
       }
     },
-    "owner": "neezacoto"
+    "owner": "neezacoto",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/57a89293-cd6c-493f-9562-98426d8ff9b2"
+    }
   }
 }
